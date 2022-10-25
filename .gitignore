@@ -1,0 +1,7 @@
+
+*.p
+*.json
+*.pickle
+*.csv
+*.zip
+Data/variables_readme.txt
