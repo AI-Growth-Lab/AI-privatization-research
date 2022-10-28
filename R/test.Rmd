@@ -1,0 +1,61 @@
+---
+title: "First data scanning"
+output: html_notebook
+---
+
+
+```{r}
+### Generic preamble
+#rm(list=ls())
+Sys.setenv(LANG = "en")
+options(scipen = 5)
+set.seed(1337)
+
+### Load packages  
+# general
+library(tidyverse)
+library(magrittr)
+```
+
+```{r}
+data_ind <- read_csv('../../input/variables.csv', n_max = 100000)
+data_pub <- read_csv('../../input/works.csv', n_max = 100000)
+```
+
+# First inspection
+
+## Data Individuals
+
+```{r}
+data_ind %>% head()
+```
+```{r}
+data_ind %>% glimpse()
+```
+
+
+
+```{r}
+data_ind %>% skimr::skim()
+```
+
+Observations:
+
+* Seniority before 2000?
+* Academia/industry missing... better link file with author-institution and author-paper
+
+## Data Publications
+
+```{r}
+data_pub %>% head()
+```
+
+```{r}
+data_pub %>% glimpse()
+```
+
+
+
+```{r}
+data_pub %>% skimr::skim()
+```
