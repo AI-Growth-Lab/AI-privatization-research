@@ -18,8 +18,8 @@ library(magrittr)
 ```
 
 ```{r}
-data_ind <- read_csv('../../input/variables.csv', n_max = 100000)
-data_pub <- read_csv('../../input/works.csv', n_max = 100000)
+data_ind <- read_csv('../../input/variables.csv') #, n_max = 100000
+#data_pub <- read_csv('../../input/works.csv', n_max = 100000)
 ```
 
 # First inspection

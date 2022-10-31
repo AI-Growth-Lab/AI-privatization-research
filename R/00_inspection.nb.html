@@ -1770,7 +1770,7 @@ pre code {
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyMjIEdlbmVyaWMgcHJlYW1ibGVcbiNybShsaXN0PWxzKCkpXG5TeXMuc2V0ZW52KExBTkcgPSBcImVuXCIpXG5vcHRpb25zKHNjaXBlbiA9IDUpXG5zZXQuc2VlZCgxMzM3KVxuXG4jIyMgTG9hZCBwYWNrYWdlcyAgXG4jIGdlbmVyYWxcbmxpYnJhcnkodGlkeXZlcnNlKVxubGlicmFyeShtYWdyaXR0cilcbmBgYCJ9 -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyMjIEdlbmVyaWMgcHJlYW1ibGVcbiNybShsaXN0PWxzKCkpXG5TeXMuc2V0ZW52KExBTkcgPSBcImVuXCIpXG5vcHRpb25zKHNjaXBlbiA9IDUpXG5zZXQuc2VlZCgxMzM3KVxuXG4jIyMgTG9hZCBwYWNrYWdlcyAgXG4jIGdlbmVyYWxcbmxpYnJhcnkodGlkeXZlcnNlKVxuYGBgIn0= -->
 <pre class="r"><code>### Generic preamble
 #rm(list=ls())
 Sys.setenv(LANG = &quot;en&quot;)
@@ -1779,36 +1779,55 @@ set.seed(1337)
 
 ### Load packages  
 # general
-library(tidyverse)
-library(magrittr)</code></pre>
+library(tidyverse)</code></pre>
 <!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiUmVnaXN0ZXJlZCBTMyBtZXRob2RzIG92ZXJ3cml0dGVuIGJ5ICdkYnBseXInOlxuICBtZXRob2QgICAgICAgICBmcm9tXG4gIHByaW50LnRibF9sYXp5ICAgICBcbiAgcHJpbnQudGJsX3NxbCAgICAgIFxu4pSA4pSAIEF0dGFjaGluZyBwYWNrYWdlcyDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIAgdGlkeXZlcnNlIDEuMy4xIOKUgOKUgFxu4pyUIGdncGxvdDIgMy4zLjYgICAgIOKclCBwdXJyciAgIDAuMy40XG7inJQgdGliYmxlICAzLjEuOCAgICAg4pyUIGRwbHlyICAgMS4wLjlcbuKclCB0aWR5ciAgIDEuMi4wICAgICDinJQgc3RyaW5nciAxLjQuMFxu4pyUIHJlYWRyICAgMi4xLjIgICAgIOKclCBmb3JjYXRzIDAuNS4xXG5XYXJuaW5nOiBwYWNrYWdlIOKAmGdncGxvdDLigJkgd2FzIGJ1aWx0IHVuZGVyIFIgdmVyc2lvbiA0LjEuMldhcm5pbmc6IHBhY2thZ2Ug4oCYdGliYmxl4oCZIHdhcyBidWlsdCB1bmRlciBSIHZlcnNpb24gNC4xLjJXYXJuaW5nOiBwYWNrYWdlIOKAmHRpZHly4oCZIHdhcyBidWlsdCB1bmRlciBSIHZlcnNpb24gNC4xLjJXYXJuaW5nOiBwYWNrYWdlIOKAmHJlYWRy4oCZIHdhcyBidWlsdCB1bmRlciBSIHZlcnNpb24gNC4xLjJXYXJuaW5nOiBwYWNrYWdlIOKAmGRwbHly4oCZIHdhcyBidWlsdCB1bmRlciBSIHZlcnNpb24gNC4xLjLilIDilIAgQ29uZmxpY3RzIOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgCB0aWR5dmVyc2VfY29uZmxpY3RzKCkg4pSA4pSAXG7inJYgZHBseXI6OmZpbHRlcigpIG1hc2tzIHN0YXRzOjpmaWx0ZXIoKVxu4pyWIGRwbHlyOjpsYWcoKSAgICBtYXNrcyBzdGF0czo6bGFnKClcbiJ9 -->
+<pre><code>Registered S3 methods overwritten by &#39;dbplyr&#39;:
+  method         from
+  print.tbl_lazy     
+  print.tbl_sql      
+── Attaching packages ─────────────────────────────────────────────────────────────────────────────────── tidyverse 1.3.1 ──
+✔ ggplot2 3.3.6     ✔ purrr   0.3.4
+✔ tibble  3.1.8     ✔ dplyr   1.0.9
+✔ tidyr   1.2.0     ✔ stringr 1.4.0
+✔ readr   2.1.2     ✔ forcats 0.5.1
+Warning: package ‘ggplot2’ was built under R version 4.1.2Warning: package ‘tibble’ was built under R version 4.1.2Warning: package ‘tidyr’ was built under R version 4.1.2Warning: package ‘readr’ was built under R version 4.1.2Warning: package ‘dplyr’ was built under R version 4.1.2── Conflicts ────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShtYWdyaXR0cilcbmBgYCJ9 -->
+<pre class="r"><code>library(magrittr)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiV2FybmluZzogcGFja2FnZSDigJhtYWdyaXR0cuKAmSB3YXMgYnVpbHQgdW5kZXIgUiB2ZXJzaW9uIDQuMS4yXG5BdHRhY2hpbmcgcGFja2FnZTog4oCYbWFncml0dHLigJlcblxuVGhlIGZvbGxvd2luZyBvYmplY3QgaXMgbWFza2VkIGZyb20g4oCYcGFja2FnZTpwdXJycuKAmTpcblxuICAgIHNldF9uYW1lc1xuXG5UaGUgZm9sbG93aW5nIG9iamVjdCBpcyBtYXNrZWQgZnJvbSDigJhwYWNrYWdlOnRpZHly4oCZOlxuXG4gICAgZXh0cmFjdFxuIn0= -->
+<pre><code>Warning: package ‘magrittr’ was built under R version 4.1.2
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract</code></pre>
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGF0YV9pbmQgPC0gcmVhZF9jc3YoJy4uLy4uL2lucHV0L3ZhcmlhYmxlcy5jc3YnLCBuX21heCA9IDEwMDAwMClcbmBgYCJ9 -->
-<pre class="r"><code>data_ind &lt;- read_csv(&#39;../../input/variables.csv&#39;, n_max = 100000)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGF0YV9pbmQgPC0gcmVhZF9jc3YoJy4uLy4uL2lucHV0L3ZhcmlhYmxlcy5jc3YnKSAjLCBuX21heCA9IDEwMDAwMFxuYGBgIn0= -->
+<pre class="r"><code>data_ind &lt;- read_csv(&#39;../../input/variables.csv&#39;) #, n_max = 100000</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiUm93czogMTAwMDAwIENvbHVtbnM6IDEy4pSA4pSAIENvbHVtbiBzcGVjaWZpY2F0aW9uIOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgFxuRGVsaW1pdGVyOiBcIixcIlxuY2hyICAoMik6IGNvbmNlcHRzLCBnZW5kZXJcbmRibCAoMTApOiB5ZWFyLCBBSUQsIGRlZ19jZW4sIGRlZ19jZW5fY29tcCwgcGFwZXJfbiwgc2VuaW9yaXR5LCBETCwgc3dpdGNoZXIsIHRyYW5zaXRpb24sIHRyYW5zaXRlZF90XG7ihLkgVXNlIGBzcGVjKClgIHRvIHJldHJpZXZlIHRoZSBmdWxsIGNvbHVtbiBzcGVjaWZpY2F0aW9uIGZvciB0aGlzIGRhdGEuXG7ihLkgU3BlY2lmeSB0aGUgY29sdW1uIHR5cGVzIG9yIHNldCBgc2hvd19jb2xfdHlwZXMgPSBGQUxTRWAgdG8gcXVpZXQgdGhpcyBtZXNzYWdlLlxuIn0= -->
-<pre><code>Rows: 100000 Columns: 12── Column specification ────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+<!-- rnb-output-begin eyJkYXRhIjoiUm93czogMzQxOTA1MSBDb2x1bW5zOiAxMuKUgOKUgCBDb2x1bW4gc3BlY2lmaWNhdGlvbiDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIBcbkRlbGltaXRlcjogXCIsXCJcbmNociAgKDIpOiBjb25jZXB0cywgZ2VuZGVyXG5kYmwgKDEwKTogeWVhciwgQUlELCBkZWdfY2VuLCBkZWdfY2VuX2NvbXAsIHBhcGVyX24sIHNlbmlvcml0eSwgREwsIHN3aXRjaGVyLCB0cmFuc2l0aW9uLCB0cmFuc2l0ZWRfdFxu4oS5IFVzZSBgc3BlYygpYCB0byByZXRyaWV2ZSB0aGUgZnVsbCBjb2x1bW4gc3BlY2lmaWNhdGlvbiBmb3IgdGhpcyBkYXRhLlxu4oS5IFNwZWNpZnkgdGhlIGNvbHVtbiB0eXBlcyBvciBzZXQgYHNob3dfY29sX3R5cGVzID0gRkFMU0VgIHRvIHF1aWV0IHRoaXMgbWVzc2FnZS5cbiJ9 -->
+<pre><code>Rows: 3419051 Columns: 12── Column specification ────────────────────────────────────────────────────────────────────────────────────────────────────
 Delimiter: &quot;,&quot;
 chr  (2): concepts, gender
 dbl (10): year, AID, deg_cen, deg_cen_comp, paper_n, seniority, DL, switcher, transition, transited_t
 ℹ Use `spec()` to retrieve the full column specification for this data.
 ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
 <!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGF0YV9wdWIgPC0gcmVhZF9jc3YoJy4uLy4uL2lucHV0L3dvcmtzLmNzdicsIG5fbWF4ID0gMTAwMDAwKVxuYGBgIn0= -->
-<pre class="r"><code>data_pub &lt;- read_csv(&#39;../../input/works.csv&#39;, n_max = 100000)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuI2RhdGFfcHViIDwtIHJlYWRfY3N2KCcuLi8uLi9pbnB1dC93b3Jrcy5jc3YnLCBuX21heCA9IDEwMDAwMClcbmBgYCJ9 -->
+<pre class="r"><code>#data_pub &lt;- read_csv(&#39;../../input/works.csv&#39;, n_max = 100000)</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiUm93czogMTAwMDAwIENvbHVtbnM6IDnilIDilIAgQ29sdW1uIHNwZWNpZmljYXRpb24g4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSAXG5EZWxpbWl0ZXI6IFwiLFwiXG5jaHIgKDUpOiB0aXRsZSwgdHlwZSwgbGlzdF9haWQsIGNvbmNlcHRzLCBpc3NuXG5kYmwgKDMpOiBpZCwgeWVhciwgY2l0ZWRfYnlfY291bnRcbmxnbCAoMSk6IG9hXG7ihLkgVXNlIGBzcGVjKClgIHRvIHJldHJpZXZlIHRoZSBmdWxsIGNvbHVtbiBzcGVjaWZpY2F0aW9uIGZvciB0aGlzIGRhdGEuXG7ihLkgU3BlY2lmeSB0aGUgY29sdW1uIHR5cGVzIG9yIHNldCBgc2hvd19jb2xfdHlwZXMgPSBGQUxTRWAgdG8gcXVpZXQgdGhpcyBtZXNzYWdlLlxuIn0= -->
-<pre><code>Rows: 100000 Columns: 9── Column specification ────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-Delimiter: &quot;,&quot;
-chr (5): title, type, list_aid, concepts, issn
-dbl (3): id, year, cited_by_count
-lgl (1): oa
-ℹ Use `spec()` to retrieve the full column specification for this data.
-ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <div id="first-inspection" class="section level1">
@@ -1972,7 +1991,7 @@ Group variables            None
 </div>
 </div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiRmlyc3QgZGF0YSBzY2FubmluZyIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKCmBgYHtyfQojIyMgR2VuZXJpYyBwcmVhbWJsZQojcm0obGlzdD1scygpKQpTeXMuc2V0ZW52KExBTkcgPSAiZW4iKQpvcHRpb25zKHNjaXBlbiA9IDUpCnNldC5zZWVkKDEzMzcpCgojIyMgTG9hZCBwYWNrYWdlcyAgCiMgZ2VuZXJhbApsaWJyYXJ5KHRpZHl2ZXJzZSkKbGlicmFyeShtYWdyaXR0cikKYGBgCgpgYGB7cn0KZGF0YV9pbmQgPC0gcmVhZF9jc3YoJy4uLy4uL2lucHV0L3ZhcmlhYmxlcy5jc3YnLCBuX21heCA9IDEwMDAwMCkKZGF0YV9wdWIgPC0gcmVhZF9jc3YoJy4uLy4uL2lucHV0L3dvcmtzLmNzdicsIG5fbWF4ID0gMTAwMDAwKQpgYGAKCiMgRmlyc3QgaW5zcGVjdGlvbgoKIyMgRGF0YSBJbmRpdmlkdWFscwoKYGBge3J9CmRhdGFfaW5kICU+JSBoZWFkKCkKYGBgCmBgYHtyfQpkYXRhX2luZCAlPiUgZ2xpbXBzZSgpCmBgYAoKCgpgYGB7cn0KZGF0YV9pbmQgJT4lIHNraW1yOjpza2ltKCkKYGBgCgpPYnNlcnZhdGlvbnM6CgoqIFNlbmlvcml0eSBiZWZvcmUgMjAwMD8KKiBBY2FkZW1pYS9pbmR1c3RyeSBtaXNzaW5nLi4uIGJldHRlciBsaW5rIGZpbGUgd2l0aCBhdXRob3ItaW5zdGl0dXRpb24gYW5kIGF1dGhvci1wYXBlcgoKIyMgRGF0YSBQdWJsaWNhdGlvbnMKCmBgYHtyfQpkYXRhX3B1YiAlPiUgaGVhZCgpCmBgYAoKYGBge3J9CmRhdGFfcHViICU+JSBnbGltcHNlKCkKYGBgCgoKCmBgYHtyfQpkYXRhX3B1YiAlPiUgc2tpbXI6OnNraW0oKQpgYGAK</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiRmlyc3QgZGF0YSBzY2FubmluZyIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKCmBgYHtyfQojIyMgR2VuZXJpYyBwcmVhbWJsZQojcm0obGlzdD1scygpKQpTeXMuc2V0ZW52KExBTkcgPSAiZW4iKQpvcHRpb25zKHNjaXBlbiA9IDUpCnNldC5zZWVkKDEzMzcpCgojIyMgTG9hZCBwYWNrYWdlcyAgCiMgZ2VuZXJhbApsaWJyYXJ5KHRpZHl2ZXJzZSkKbGlicmFyeShtYWdyaXR0cikKYGBgCgpgYGB7cn0KZGF0YV9pbmQgPC0gcmVhZF9jc3YoJy4uLy4uL2lucHV0L3ZhcmlhYmxlcy5jc3YnKSAjLCBuX21heCA9IDEwMDAwMAojZGF0YV9wdWIgPC0gcmVhZF9jc3YoJy4uLy4uL2lucHV0L3dvcmtzLmNzdicsIG5fbWF4ID0gMTAwMDAwKQpgYGAKCiMgRmlyc3QgaW5zcGVjdGlvbgoKIyMgRGF0YSBJbmRpdmlkdWFscwoKYGBge3J9CmRhdGFfaW5kICU+JSBoZWFkKCkKYGBgCmBgYHtyfQpkYXRhX2luZCAlPiUgZ2xpbXBzZSgpCmBgYAoKCgpgYGB7cn0KZGF0YV9pbmQgJT4lIHNraW1yOjpza2ltKCkKYGBgCgpPYnNlcnZhdGlvbnM6CgoqIFNlbmlvcml0eSBiZWZvcmUgMjAwMD8KKiBBY2FkZW1pYS9pbmR1c3RyeSBtaXNzaW5nLi4uIGJldHRlciBsaW5rIGZpbGUgd2l0aCBhdXRob3ItaW5zdGl0dXRpb24gYW5kIGF1dGhvci1wYXBlcgoKIyMgRGF0YSBQdWJsaWNhdGlvbnMKCmBgYHtyfQpkYXRhX3B1YiAlPiUgaGVhZCgpCmBgYAoKYGBge3J9CmRhdGFfcHViICU+JSBnbGltcHNlKCkKYGBgCgoKCmBgYHtyfQpkYXRhX3B1YiAlPiUgc2tpbXI6OnNraW0oKQpgYGAK</div>
 
 
 
@@ -2019,7 +2038,7 @@ $(document).ready(function () {
 <!-- code folding -->
 <script>
 $(document).ready(function () {
-  window.initializeSourceEmbed("test.Rmd");
+  window.initializeSourceEmbed("00_inspection.Rmd");
   window.initializeCodeFolding("show" === "show");
 });
 </script>

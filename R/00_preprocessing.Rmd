@@ -1,0 +1,282 @@
+---
+title: 'Privatization of AI research: Preprocessing'
+author: "Daniel S. Hain (dsh@business.aau.dk)"
+date: "Updated `r format(Sys.time(), '%B %d, %Y')`"
+output:
+  html_notebook:
+    code_folding: hide
+    df_print: paged
+    toc: true
+    toc_depth: 2
+    toc_float:
+      collapsed: false
+    theme: flatly
+---
+
+```{r setup, include=FALSE}
+# Knitr options
+### Generic preamble
+rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
+gc() #free up memrory and report the memory usage.
+graphics.off()
+
+Sys.setenv(LANG = "en") # For english language
+options(scipen = 5) # To deactivate annoying scientific number notation
+
+### Load packages
+library(tidyverse) # Collection of all the good stuff like dplyr, ggplot2 ect.
+library(magrittr) # For extra-piping operators (eg. %<>%)
+
+# UML
+library(FactoMineR)
+library(factoextra)
+
+# Descriptives
+library(skimr)
+library(stargazer)
+
+# Viz
+library(patchwork)
+```
+
+# PApers & Conceps
+
+## Read data
+
+```{r}
+data <- read_csv('../../input/works.csv')
+```
+
+
+```{r}
+data %>% glimpse()
+```
+
+## Extract citations, novelty, OA
+
+```{r}
+indicators <- data %>% select(list_aid, year, list_aid, oa, cited_by_count, novelty_lee) %>%
+  mutate(list_aid = list_aid %>% str_split('\n')) %>% 
+  unnest(list_aid) %>%
+  rename(AID = list_aid) %>%
+  group_by(AID, year) %>%
+  summarise(
+    paper_n = n(),
+    citation_n = cited_by_count %>% sum(na.rm = TRUE),
+    citation_mean = cited_by_count %>% mean(na.rm = TRUE),
+    citation_max = cited_by_count %>% max(),
+    oa_mean = oa %>% mean(),
+    novelty_mean = novelty_lee %>% mean(na.rm = TRUE),
+    # novelty_max = novelty_lee %>% max()
+  ) %>%
+  ungroup()
+```
+
+```{r}
+indicators %>% write_rds('../../temp/author_indicators.rds')
+```
+
+```{r}
+rm(indicators)
+```
+
+
+## Extract concepts
+
+```{r}
+concepts <- data %>% select(id, year, list_aid, concepts) %>%
+    mutate(concepts = concepts %>% str_split('\n')) %>% 
+    unnest(concepts)
+```
+
+```{r}
+rm(data)
+```
+
+
+```{r}
+concepts %>% count(concepts, sort = TRUE)
+```
+
+### Concept reduction
+
+```{r}
+# Define the number of fields to be included
+n_concepts <- 100
+n_start = 1
+
+# Extract main concepts
+concepts_main <- concepts %>% count(concepts, sort = TRUE) %>%
+  slice(n_start:(n_start + n_concepts))
+```
+
+```{r}
+#Update author dyn
+concepts %<>%
+  mutate(concepts = ifelse(concepts %in% (concepts_main %>% pull(concepts)), concepts, 'others'))
+```
+
+### Main Concepts 
+
+```{r}
+# GEneral concepts without informative value
+concept_drop <- tibble(
+  concepts =  c('computer science', 'artificial intelligence', 'machine learning')
+)
+```
+
+```{r}
+# Alternative 1: only 1 concept per author -> Q: Maybe author/year
+concepts_1 <- concepts %>%
+  anti_join(concept_drop, by = 'concepts') %>%
+  mutate(list_aid = list_aid %>% str_split('\n')) %>% 
+  unnest(list_aid) %>%
+  rename(AID = list_aid) %>%
+  count(AID, year, concepts) 
+```
+
+```{r}
+data.table::setDT(concepts_1)[, .SD[which.max(n)], by=AID] %>%
+  data.table::setDF() %>%
+  select(AID, year, concepts)
+
+## Way faster than dplyr alternative
+# group_by(AID, year) %>% slice_max(order_by = n, n = 1) %>% ungroup()
+```
+
+```{r}
+concepts_1 %>% write_rds('../../temp/author_concepts.rds')
+```
+
+<!--- 
+### Concept clusters (alternative solution, work in progress, not really good results yet)
+
+```{r}
+concepts_wide <- concepts %>%
+  select(id, concepts) %>%
+  count(id, concepts) %>%
+  pivot_wider(names_from = concepts, values_from = n, values_fill = 0, names_prefix = 'con_')
+```
+
+```{r}
+res_pca <- concepts_wide %>% 
+  column_to_rownames(id) %>%
+  PCA(scale.unit = FALSE, graph = FALSE)
+```
+
+```{r}
+res_hcpc <- res_pca %>% 
+  HCPC(nb.clust = -1, #  self determined: higher relative loss of inertia
+       graph = FALSE) 
+```
+
+```{r}
+res_km <- concepts_wide  %>% 
+  column_to_rownames(id) %>%
+  kmeans(centers = 3)  
+```
+--->
+
+```{r}
+# Delete all objects
+rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
+gc() #free up memrory and report the memory usage.
+```
+
+# Main data (reearcher panel)
+
+## Load data
+
+```{r}
+data <- read_csv('../../input/variables.csv') 
+```
+
+```{r}
+# Unselect not needed variables
+data %<>% 
+  select(-seniority, -concepts, -gender) %>%
+  mutate(AID = AID %>% as.character()) 
+```
+
+```{r}
+data %>% glimpse()
+```
+
+
+
+## Join with othr data
+
+```{r}
+# indicators
+data %<>% left_join(read_rds('../../temp/author_indicators.rds') %>%
+                      select(AID, year, citation_n, oa_mean, novelty_mean),
+                    by = c('AID', 'year'))
+```
+
+```{r}
+# concepts
+data %<>% left_join(read_rds('../../temp/author_concepts.rds') %>%
+                      select(AID, year, concepts),
+                    by = c('AID', 'year'))
+```
+
+```{r}
+data %<>%   
+  distinct(AID, year, .keep_all = TRUE)
+```
+
+
+## Make complete panel
+
+```{r}
+data %<>%   
+  group_by(AID) %>%
+    complete(year = full_seq(min(year):max(year), 1)) %>%
+    fill(aff_id, aff_type, .direction = "downup") %>%
+  ungroup() 
+```
+
+## Replace NAs
+  
+```{r}
+data %<>%
+  replace_na(list(transited_t = -1,
+                  paper_n = 0, citation_n = 0, oa_mean = 0, novelty_mean = 0,
+                  concepts = 'unknown'))
+```
+
+## Rolling mean
+
+```{r}
+data %>%
+  arrange(AID, year) %>%
+  group_by(AID) %>%
+  mutate(
+    across(c(paper_n, citation_n, oa_mean, novelty_mean), ~ zoo::rollmean(.x, 3, align = "left"))
+  )
+```
+
+## Lag variables
+
+```{r}
+data %>%
+  arrange(AID, year) %>%
+  group_by(AID) %>%
+  mutate(
+    across(c(paper_n, citation_n, oa_mean, novelty_mean), ~ lag(.x, 1))
+  )
+```
+
+## some other small thingies
+
+TODO:
+* X join citation & novelty var
+* Make panel over all years
+* replace NAs
+* lag variables
+* Pre-filtering (or maybe better when loading for regrerssion)
+## Save
+
+```{r}
+data %>% write_rds('../../temp/data_reg.rds')
+```
