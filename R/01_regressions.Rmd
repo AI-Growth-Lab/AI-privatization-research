@@ -16,70 +16,32 @@ output:
 ```{r setup, include=FALSE}
 # Knitr options
 ### Generic preamble
-rm(list = ls())
+rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
+gc() #free up memrory and report the memory usage.
+graphics.off()
+
 Sys.setenv(LANG = "en") # For english language
 options(scipen = 5) # To deactivate annoying scientific number notation
 
-# rm(list=ls()); graphics.off() # get rid of everything in the workspace
-if (!require("knitr")) install.packages("knitr"); library(knitr) # For display of the markdown
-
-### Knitr options
-knitr::opts_chunk$set(warning=FALSE,
-                     message=FALSE,
-                     fig.align="center"
-                     )
-
-library(DBI) # GEneral R database interface
-library(RPostgres) # PostgreSQL interface driver
-library(dbplyr) # for dplyr with databases
-
-### Database connection
-
-# set up connection to existing PostgreSQL database, just plug in own details
-con <- dbConnect(drv = RPostgres::Postgres(), 
-                 dbname = "patentdb",
-                 host = "130.225.57.105", port = 5432,
-                 user = "patentdbowner", password = "e6rKPT2iZ99@PKaa")
-```
-
-```{r}
 ### Load packages
 library(tidyverse) # Collection of all the good stuff like dplyr, ggplot2 ect.
 library(magrittr) # For extra-piping operators (eg. %<>%)
 
+# UML
+#library(FactoMineR)
+#library(factoextra)
+
 # Descriptives
-library(skimr)
-library(stargazer)
+#library(skimr)
+#library(stargazer)
 
 # Viz
-library(patchwork)
+#library(patchwork)
 ```
 
 # Data preperation
 
-## Institutions
 
-## Author 
-
-### Author static
-
-```{r}
-tbl_author_stat <- readRDS('../../temp/tbl_author_type.rds')
-
-## FWe only include researcher which are observed for at least five years after 2000, and exclude researcher where the latest observation was before 2015. 
-tbl_author_stat %<>%
-  filter(author_type %in% c('academia', 'switcher') &
-           year_n >= 5 &
-           year_end >= 2015) 
-
-# Insert gender
-tbl_author_stat %<>% 
-  left_join(tbl(con, "author_gender") %>% select(id, full_name, gender), by = c('author_id' = 'id'), copy = TRUE) %>%
-  replace_na(list(gender = 'male')) %>% # Strong assumption to get rid of NAs
-  mutate(gender = ifelse(gender == 'male', TRUE, FALSE)) # Coded logical, where male = 1
-```
-
-### Author Dynamic
 
 ```{r}
 tbl_author_dyn <- readRDS('../../temp/tbl_author_dyn_all.rds')

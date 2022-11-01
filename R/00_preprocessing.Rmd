@@ -28,15 +28,15 @@ library(tidyverse) # Collection of all the good stuff like dplyr, ggplot2 ect.
 library(magrittr) # For extra-piping operators (eg. %<>%)
 
 # UML
-library(FactoMineR)
-library(factoextra)
+#library(FactoMineR)
+#library(factoextra)
 
 # Descriptives
-library(skimr)
-library(stargazer)
+#library(skimr)
+#library(stargazer)
 
 # Viz
-library(patchwork)
+#library(patchwork)
 ```
 
 # PApers & Conceps
@@ -128,17 +128,35 @@ concept_drop <- tibble(
 ```{r}
 # Alternative 1: only 1 concept per author -> Q: Maybe author/year
 concepts_1 <- concepts %>%
-  anti_join(concept_drop, by = 'concepts') %>%
+  anti_join(concept_drop, by = 'concepts')
+```
+
+```{r}
+concepts %>% write_rds('../../temp/paper_concepts.rds')
+rm(concepts)
+```
+
+
+```{r}
+rm(concept_drop, concepts_main, n_start, n_concepts)
+```
+
+
+```{r}
+ concepts_1 %<>%
   mutate(list_aid = list_aid %>% str_split('\n')) %>% 
   unnest(list_aid) %>%
   rename(AID = list_aid) %>%
   count(AID, year, concepts) 
 ```
 
+
 ```{r}
-data.table::setDT(concepts_1)[, .SD[which.max(n)], by=AID] %>%
+data.table::setDT(concepts_1)[, .SD[which.max(n)], by=list(AID, year)] %>%
   data.table::setDF() %>%
-  select(AID, year, concepts)
+  select(AID, year, concepts) %>%
+  arrange(AID, year) %>%
+  distinct(AID, year, .keep_all = TRUE)
 
 ## Way faster than dplyr alternative
 # group_by(AID, year) %>% slice_max(order_by = n, n = 1) %>% ungroup()
@@ -203,7 +221,6 @@ data %>% glimpse()
 ```
 
 
-
 ## Join with othr data
 
 ```{r}
@@ -221,8 +238,8 @@ data %<>% left_join(read_rds('../../temp/author_concepts.rds') %>%
 ```
 
 ```{r}
-data %<>%   
-  distinct(AID, year, .keep_all = TRUE)
+# remove potential duplicates (dont think so, but still...)
+data %<>% distinct(AID, year, .keep_all = TRUE)
 ```
 
 
@@ -269,14 +286,21 @@ data %>%
 
 ## some other small thingies
 
-TODO:
-* X join citation & novelty var
-* Make panel over all years
-* replace NAs
-* lag variables
-* Pre-filtering (or maybe better when loading for regrerssion)
 ## Save
 
 ```{r}
 data %>% write_rds('../../temp/data_reg.rds')
 ```
+
+# TODOs
+
+TODO preprocessing:
+* X join citation & novelty var
+* Make panel over all years
+* replace NAs
+* lag variables
+* Pre-filtering (or maybe better when loading for regrerssion)
+* Add institutional quelity indicators.
+
+TODO others
+* Do a static author collection
