@@ -29,7 +29,7 @@ library(magrittr) # For extra-piping operators (eg. %<>%)
 
 # Descriptives
 #library(skimr)
-#library(stargazer)
+library(stargazer)
 
 # Viz
 library(patchwork)
@@ -95,14 +95,14 @@ data %<>%
 ```{r}
 # Some last preprocessing
 data %<>%
+  drop_na() %>%
   filter(year >= 2000,
          year <= 2021) %>%          
   group_by(AID) %>%
   mutate(t = 1:n()) %>%
   ungroup() %>%
   mutate(year = year %>% factor(),
-         concepts = concepts %>% factor()) %>%
-  drop_na() 
+         concepts = concepts %>% factor()) 
 ```
 
 # Suvival Analysis 
@@ -140,7 +140,7 @@ fit_km3 <- survfit(surv_object ~ aff_star,
 p1 <- fit_km0 %>% autoplot() + labs(title= 'KM: baseline')
 p2 <- fit_km1 %>% autoplot() + labs(title= 'KM: DL researcher')
 p3 <- fit_km2 %>% autoplot() + labs(title= 'KM: Star researcher')
-p4 <- fit_km3 %>% autoplot() + labs(title= 'KM: STar institution')
+p4 <- fit_km3 %>% autoplot() + labs(title= 'KM: Star institution')
 
 (p1 + p2) / (p3 + p4) +  plot_layout(guides = "collect") & theme(legend.position = 'bottom') & labs(x = 'Time', y = 'Survival Probability')
 ```
@@ -148,43 +148,61 @@ p4 <- fit_km3 %>% autoplot() + labs(title= 'KM: STar institution')
 ## Cox Proportional Hazard Model
 
 ```{r}
+data_surv %>% glimpse()
+```
+
+
+```{r}
 ### Fir Cox proportional hazard model
 
 #Baseline
-fit_cox0 <- coxph(surv_object ~ seniority + gender + field_of_study_name + year,
+fit_cox0 <- coxph(surv_object ~ seniority_all + concepts + year,
                   data = data_surv)
 
-fit_cox1 <- coxph(surv_object ~ seniority + gender + field_of_study_name  + year + dl_researcher,
+fit_cox1 <- coxph(surv_object ~ seniority_all + concepts + year 
+                  + DL,
                   data = data_surv)
 
-fit_cox2 <- coxph(surv_object ~ seniority + gender + field_of_study_name + year + cent_dgr + cent_dgr_ind,
+fit_cox2 <- coxph(surv_object ~ seniority_all + concepts + year 
+                  + deg_cen + deg_cen_comp,
                   data = data_surv)
 
-fit_cox3 <- coxph(surv_object ~ seniority + gender + field_of_study_name + year + paper_n + citation_rank + log(cit_n_cum + 1) ,
+fit_cox3 <- coxph(surv_object ~ seniority_all + concepts + year 
+                  + citation_fw + novelty_fw,
                   data = data_surv)
 
-fit_cox4 <- coxph(surv_object ~ seniority + gender + field_of_study_name + year + dl_researcher + cent_dgr + cent_dgr_ind +  paper_n + citation_rank + log(cit_n_cum + 1),
+fit_cox4 <- coxph(surv_object ~ seniority_all + concepts + year 
+                  + aff_citation_fw,
+                  data = data_surv)
+
+fit_cox5 <- coxph(surv_object ~ seniority_all + concepts + year 
+                  + DL + deg_cen + deg_cen_comp + citation_fw + novelty_fw + aff_citation_fw,
                   data = data_surv)
 ```
 
 
 ```{r}
-stargazer(fit_cox0, fit_cox1, fit_cox2, fit_cox3, fit_cox4, type = 'latex', 
-          omit = c( 'field_of_study_name', 'year', 'Constant'))
+stargazer(fit_cox0, fit_cox1, fit_cox2, fit_cox3, fit_cox4, fit_cox5, type = 'latex', 
+          omit = c( 'concepts', 'year', 'Constant'), out ='../../output/surv_res1.tex'
+          )
 ```
 
 ```{r}
-stargazer(fit_cox0, fit_cox1, fit_cox2, fit_cox3, fit_cox4, type = 'text',
-          omit = c( 'field_of_study_name', 'year', 'Constant'))
+stargazer(fit_cox0, fit_cox1, fit_cox2, fit_cox3, fit_cox4, fit_cox5, type = 'text',
+          omit = c( 'concepts', 'year', 'Constant'))
 ```
 
 ```{r}
-fit_cox4 %>% ggforest(data = data_surv)
+fit_cox5 %>% ggforest(data = data_surv)
 ```
 
 
 
-# Propensity Score matching
+
+
+<!---
+
+# Propensity Score matching 
 
 ```{r}
 library(MatchIt)
@@ -332,7 +350,7 @@ fit_did_2 %>% interact_plot(pred = transited_t, modx = switcher,
 ```
 
 
-
+--->
 
 
 
