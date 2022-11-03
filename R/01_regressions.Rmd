@@ -27,150 +27,99 @@ options(scipen = 5) # To deactivate annoying scientific number notation
 library(tidyverse) # Collection of all the good stuff like dplyr, ggplot2 ect.
 library(magrittr) # For extra-piping operators (eg. %<>%)
 
-# UML
-#library(FactoMineR)
-#library(factoextra)
-
 # Descriptives
 #library(skimr)
 #library(stargazer)
 
 # Viz
-#library(patchwork)
-```
+library(patchwork)
 
-# Data preperation
-
-
-
-```{r}
-tbl_author_dyn <- readRDS('../../temp/tbl_author_dyn_all.rds')
-
-# deal with NAs
-tbl_author_dyn %<>%
-  replace_na(list(cent_dgr = 0, cent_dgr_ind = 0, field_of_study_id = 0, field_of_study_name = 'none', field_n = 0, dl_n = 0, dl_researcher = FALSE))
-```
-
-
-## Others
-
-### Field of study
-
-```{r}
-# Define the number of fields to be included
-n_fos <- 50
-
-# Extract Fos
-fos_main <- tbl_author_dyn %>% count(field_of_study_name, sort = TRUE) %>%
-  slice(2:n_fos)
-```
-
-```{r}
-#Update author dyn
-tbl_author_dyn %<>%
-  mutate(field_of_study_name = ifelse(field_of_study_name %in% (fos_main %>% pull(field_of_study_name)), field_of_study_name, 'others') %>% factor())
-
-# GEt main FoS
-author_main_fos <- tbl_author_dyn %>%
-  count(author_id, field_of_study_name, sort = TRUE) %>%
-  group_by(author_id) %>%
-    mutate(n = ifelse(field_of_study_name == 'others', 0, n)) %>%
-    arrange(author_id, desc(n)) %>%
-    slice(1:1) %>%
-  ungroup()
-
-# Join with author static
-tbl_author_stat %<>% 
-  left_join(author_main_fos %>% select(author_id, field_of_study_name), by = 'author_id') %>%
-  replace_na(list(field_of_study_name = 'others')) 
-```
-
-
-
-# Regression data prep
-
-```{r}
-# Create main data with restrictions on type
-data <- tbl_author_dyn %>% 
-  inner_join(tbl_author_stat %>% select(author_id, gender), by = 'author_id') %>%
-  distinct(author_id, year, .keep_all = TRUE)
-```
-
-```{r}
-# Create some independent variables
-data %<>%
-  group_by(author_id) %>%
-  mutate(seniority = year - min(year, na.rm = TRUE) + 1,
-         cit_n = cit_mean * paper_n,
-         cit_n_cum = cit_n %>% cumsum()) %>%
-  # Introduce Lags
-  mutate(cit_n_cum = cit_n_cum %>% lag(1),
-         cent_dgr = cent_dgr %>% lag(1),
-         cent_dgr_ind = cent_dgr %>% lag(1),
-         dl_researcher = dl_researcher %>% lag(1),
-         field_of_study_name = field_of_study_name %>% lag(1)) %>%
-  ungroup() 
-```
-
-```{r}
-# Create DV
-data %<>%
-  # Citation rank
-  group_by(year) %>%
-  mutate(citation_rank_single = cit_mean %>% percent_rank()) %>%
-  ungroup() %>%
-  # Rolling mean
-  arrange(author_id, year) %>%
-  group_by(author_id) %>%
-  mutate(citation_rank = citation_rank_single %>% slider::slide_dbl(~mean(.x), .before = 2)) %>%
-  ungroup()
-```
-
-```{r}
-# Some last preprocessing
-data %<>%
-  filter(year >= 2000) %>%          
-  group_by(author_id) %>%
-  mutate(time = 1:n()) %>%
-  ungroup() %>%
-  mutate(year = year %>% factor()) %>%
-  drop_na() %>%
-  # nicer order
-  relocate(author_id, author_type, gender, year, time, switch, transited, citation_rank, cit_n_cum, paper_n) %>%
-  arrange(author_id, time)
-```
-
-
-```{r}
-data %>% saveRDS('../../temp/reg_data.rds')
-```
-
-
-
-# Suvival Analysis 
-
-```{r}
+# Survival analysis
 library(survival)
 library(survminer)
 library(ggfortify)
 ```
+
+# Load data
+
+```{r}
+data <- read_rds('../../temp/data_reg.rds')
+```
+
+```{r}
+data %>% head()
+```
+```{r}
+data %>% glimpse()
+```
+
+
+# Regression data prep
+
+## Sorting etc
+
+```{r}
+# Just to be sure
+data %<>%
+  distinct(AID, year, .keep_all = TRUE) %>%
+  arrange(AID, year) %>%
+  relocate(AID, year, switcher, transition, transited_t, seniority_all) %>%
+  select(-aff_id, -aff_type)
+```
+
+# Lagged variables
+
+```{r}
+# Decide what to lag
+data %<>%
+  group_by(AID) %>%
+  mutate(
+    across(c(concepts,
+             DL,
+             paper_n, 
+             citation_n, 
+             oa_mean, 
+             novelty_mean, 
+             deg_cen, 
+             deg_cen_comp, 
+             novelty_fw, 
+             citation_fw,
+             aff_citation_fw
+             ), ~ lag(.x, 1))
+  ) %>%
+  ungroup()
+```
+
+## last preprocessing
+
+```{r}
+# Some last preprocessing
+data %<>%
+  filter(year >= 2000,
+         year <= 2021) %>%          
+  group_by(AID) %>%
+  mutate(t = 1:n()) %>%
+  ungroup() %>%
+  mutate(year = year %>% factor(),
+         concepts = concepts %>% factor()) %>%
+  drop_na() 
+```
+
+# Suvival Analysis 
 
 ## PReperation 
 
 ```{r}
 ### Prepare for regression
 data_surv <- data %>% 
-  # Calso lag citation rank
-  #group_by(author_id) %>%
-  #mutate(citation_rank = citation_rank %>% lag(1)) %>%
-  #ungroup() %>%
-  # other variables to try
-  mutate(star = citation_rank >= 0.9)
+  filter(transited_t <= 0) %>%
+  mutate(auth_star = citation_fw >= 0.9,
+         aff_star = aff_citation_fw >= 0.9)
 ```
 
 ```{r}
 # Surf object
-surv_object <- Surv(time = data_surv$time, event = data_surv$transited)
+surv_object <- Surv(time = data_surv$t, event = data_surv$transition)
 ```
 
 
@@ -179,21 +128,21 @@ surv_object <- Surv(time = data_surv$time, event = data_surv$transited)
 ```{r}
 fit_km0 <- survfit(surv_object ~ 1, 
                    data = data_surv)
-fit_km1 <- survfit(surv_object ~ star, 
+fit_km1 <- survfit(surv_object ~ DL, 
                    data = data_surv)
-fit_km2 <- survfit(surv_object ~ dl_researcher, 
+fit_km2 <- survfit(surv_object ~ auth_star, 
                    data = data_surv)
-fit_km3 <- survfit(surv_object ~ gender,
+fit_km3 <- survfit(surv_object ~ aff_star,
                    data = data_surv)
 ```
 
 ```{r}
 p1 <- fit_km0 %>% autoplot() + labs(title= 'KM: baseline')
-p2 <- fit_km1 %>% autoplot() + labs(title= 'KM: Star citations')
-p3 <- fit_km2 %>% autoplot() + labs(title= 'KM: DL researcher')
-p4 <- fit_km3 %>% autoplot() + labs(title= 'KM: Gender')
+p2 <- fit_km1 %>% autoplot() + labs(title= 'KM: DL researcher')
+p3 <- fit_km2 %>% autoplot() + labs(title= 'KM: Star researcher')
+p4 <- fit_km3 %>% autoplot() + labs(title= 'KM: STar institution')
 
-#(p1 + p2) / (p3 + p4) +  plot_layout(guides = "collect") & theme(legend.position = 'bottom') & labs(x = 'Time', y = 'Survival Probability')
+(p1 + p2) / (p3 + p4) +  plot_layout(guides = "collect") & theme(legend.position = 'bottom') & labs(x = 'Time', y = 'Survival Probability')
 ```
 
 ## Cox Proportional Hazard Model

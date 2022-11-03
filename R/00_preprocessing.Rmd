@@ -378,17 +378,9 @@ data %>%
   )
 ```
 
-## Lag variables
-
-```{r}
-data %>%
-  group_by(AID) %>%
-  mutate(
-    across(c(paper_n, citation_n, oa_mean, novelty_mean, deg_cen, deg_cen_comp, novelty_fw, citation_fw), ~ lag(.x, 1))
-  )
-```
-
 ## some other small thingies
+
+...
 
 ## Save
 
