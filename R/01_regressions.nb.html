@@ -2930,7 +2930,7 @@ div.tocify {
 <h1 class="title toc-ignore">Privatization of AI research: Executing
 regressions</h1>
 <h4 class="author">Daniel S. Hain (<a href="mailto:dsh@business.aau.dk" class="email">dsh@business.aau.dk</a>)</h4>
-<h4 class="date">Updated November 01, 2022</h4>
+<h4 class="date">Updated November 03, 2022</h4>
 
 </div>
 
@@ -2942,35 +2942,65 @@ regressions</h1>
 <h1>Data preperation</h1>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudGJsX2F1dGhvcl9keW4gPC0gcmVhZFJEUygnLi4vLi4vdGVtcC90YmxfYXV0aG9yX2R5bl9hbGwucmRzJylcblxuIyBkZWFsIHdpdGggTkFzXG50YmxfYXV0aG9yX2R5biAlPD4lXG4gIHJlcGxhY2VfbmEobGlzdChjZW50X2RnciA9IDAsIGNlbnRfZGdyX2luZCA9IDAsIGZpZWxkX29mX3N0dWR5X2lkID0gMCwgZmllbGRfb2Zfc3R1ZHlfbmFtZSA9ICdub25lJywgZmllbGRfbiA9IDAsIGRsX24gPSAwLCBkbF9yZXNlYXJjaGVyID0gRkFMU0UpKVxuYGBgIn0= -->
-<pre class="r"><code>tbl_author_dyn &lt;- readRDS(&#39;../../temp/tbl_author_dyn_all.rds&#39;)
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxudGJsX2F1dGhvcl9keW4gPC0gcmVhZFJEUygnLi4vLi4vdGVtcC90YmxfYXV0aG9yX2R5bl9hbGwucmRzJylcblxuIyBkZWFsIHdpdGggTkFzXG50YmxfYXV0aG9yX2R5biAlPD4lXG4gIHJlcGxhY2VfbmEobGlzdChjZW50X2RnciA9IDAsIGNlbnRfZGdyX2luZCA9IDAsIGZpZWxkX29mX3N0dWR5X2lkID0gMCwgZmllbGRfb2Zfc3R1ZHlfbmFtZSA9ICdub25lJywgZmllbGRfbiA9IDAsIGRsX24gPSAwLCBkbF9yZXNlYXJjaGVyID0gRkFMU0UpKVxuYGBgXG5gYGAifQ== -->
+<pre class="r"><code>```r
+tbl_author_dyn &lt;- readRDS(&#39;../../temp/tbl_author_dyn_all.rds&#39;)
 
 # deal with NAs
 tbl_author_dyn %&lt;&gt;%
   replace_na(list(cent_dgr = 0, cent_dgr_ind = 0, field_of_study_id = 0, field_of_study_name = &#39;none&#39;, field_n = 0, dl_n = 0, dl_researcher = FALSE))</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<div id="others" class="section level2">
-<h2>Others</h2>
-<div id="field-of-study" class="section level3">
-<h3>Field of study</h3>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBEZWZpbmUgdGhlIG51bWJlciBvZiBmaWVsZHMgdG8gYmUgaW5jbHVkZWRcbm5fZm9zIDwtIDUwXG5cbiMgRXh0cmFjdCBGb3NcbmZvc19tYWluIDwtIHRibF9hdXRob3JfZHluICU+JSBjb3VudChmaWVsZF9vZl9zdHVkeV9uYW1lLCBzb3J0ID0gVFJVRSkgJT4lXG4gIHNsaWNlKDI6bl9mb3MpXG5gYGAifQ== -->
-<pre class="r"><code># Define the number of fields to be included
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+
+## Others
+
+### Field of study
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuIyBEZWZpbmUgdGhlIG51bWJlciBvZiBmaWVsZHMgdG8gYmUgaW5jbHVkZWRcbm5fZm9zIDwtIDUwXG5cbiMgRXh0cmFjdCBGb3NcbmZvc19tYWluIDwtIHRibF9hdXRob3JfZHluICU+JSBjb3VudChmaWVsZF9vZl9zdHVkeV9uYW1lLCBzb3J0ID0gVFJVRSkgJT4lXG4gIHNsaWNlKDI6bl9mb3MpXG5gYGBcbmBgYCJ9 --&gt;
+
+```r
+```r
+# Define the number of fields to be included
 n_fos &lt;- 50
 
 # Extract Fos
 fos_main &lt;- tbl_author_dyn %&gt;% count(field_of_study_name, sort = TRUE) %&gt;%
   slice(2:n_fos)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuI1VwZGF0ZSBhdXRob3IgZHluXG50YmxfYXV0aG9yX2R5biAlPD4lXG4gIG11dGF0ZShmaWVsZF9vZl9zdHVkeV9uYW1lID0gaWZlbHNlKGZpZWxkX29mX3N0dWR5X25hbWUgJWluJSAoZm9zX21haW4gJT4lIHB1bGwoZmllbGRfb2Zfc3R1ZHlfbmFtZSkpLCBmaWVsZF9vZl9zdHVkeV9uYW1lLCAnb3RoZXJzJykgJT4lIGZhY3RvcigpKVxuXG4jIEdFdCBtYWluIEZvU1xuYXV0aG9yX21haW5fZm9zIDwtIHRibF9hdXRob3JfZHluICU+JVxuICBjb3VudChhdXRob3JfaWQsIGZpZWxkX29mX3N0dWR5X25hbWUsIHNvcnQgPSBUUlVFKSAlPiVcbiAgZ3JvdXBfYnkoYXV0aG9yX2lkKSAlPiVcbiAgICBtdXRhdGUobiA9IGlmZWxzZShmaWVsZF9vZl9zdHVkeV9uYW1lID09ICdvdGhlcnMnLCAwLCBuKSkgJT4lXG4gICAgYXJyYW5nZShhdXRob3JfaWQsIGRlc2MobikpICU+JVxuICAgIHNsaWNlKDE6MSkgJT4lXG4gIHVuZ3JvdXAoKVxuXG4jIEpvaW4gd2l0aCBhdXRob3Igc3RhdGljXG50YmxfYXV0aG9yX3N0YXQgJTw+JSBcbiAgbGVmdF9qb2luKGF1dGhvcl9tYWluX2ZvcyAlPiUgc2VsZWN0KGF1dGhvcl9pZCwgZmllbGRfb2Zfc3R1ZHlfbmFtZSksIGJ5ID0gJ2F1dGhvcl9pZCcpICU+JVxuICByZXBsYWNlX25hKGxpc3QoZmllbGRfb2Zfc3R1ZHlfbmFtZSA9ICdvdGhlcnMnKSkgXG5gYGAifQ== -->
-<pre class="r"><code>#Update author dyn
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuI1VwZGF0ZSBhdXRob3IgZHluXG50YmxfYXV0aG9yX2R5biAlPD4lXG4gIG11dGF0ZShmaWVsZF9vZl9zdHVkeV9uYW1lID0gaWZlbHNlKGZpZWxkX29mX3N0dWR5X25hbWUgJWluJSAoZm9zX21haW4gJT4lIHB1bGwoZmllbGRfb2Zfc3R1ZHlfbmFtZSkpLCBmaWVsZF9vZl9zdHVkeV9uYW1lLCAnb3RoZXJzJykgJT4lIGZhY3RvcigpKVxuXG4jIEdFdCBtYWluIEZvU1xuYXV0aG9yX21haW5fZm9zIDwtIHRibF9hdXRob3JfZHluICU+JVxuICBjb3VudChhdXRob3JfaWQsIGZpZWxkX29mX3N0dWR5X25hbWUsIHNvcnQgPSBUUlVFKSAlPiVcbiAgZ3JvdXBfYnkoYXV0aG9yX2lkKSAlPiVcbiAgICBtdXRhdGUobiA9IGlmZWxzZShmaWVsZF9vZl9zdHVkeV9uYW1lID09ICdvdGhlcnMnLCAwLCBuKSkgJT4lXG4gICAgYXJyYW5nZShhdXRob3JfaWQsIGRlc2MobikpICU+JVxuICAgIHNsaWNlKDE6MSkgJT4lXG4gIHVuZ3JvdXAoKVxuXG4jIEpvaW4gd2l0aCBhdXRob3Igc3RhdGljXG50YmxfYXV0aG9yX3N0YXQgJTw+JSBcbiAgbGVmdF9qb2luKGF1dGhvcl9tYWluX2ZvcyAlPiUgc2VsZWN0KGF1dGhvcl9pZCwgZmllbGRfb2Zfc3R1ZHlfbmFtZSksIGJ5ID0gJ2F1dGhvcl9pZCcpICU+JVxuICByZXBsYWNlX25hKGxpc3QoZmllbGRfb2Zfc3R1ZHlfbmFtZSA9ICdvdGhlcnMnKSkgXG5gYGBcbmBgYCJ9 --&gt;
+
+```r
+```r
+#Update author dyn
 tbl_author_dyn %&lt;&gt;%
   mutate(field_of_study_name = ifelse(field_of_study_name %in% (fos_main %&gt;% pull(field_of_study_name)), field_of_study_name, &#39;others&#39;) %&gt;% factor())
 
@@ -2987,28 +3017,55 @@ author_main_fos &lt;- tbl_author_dyn %&gt;%
 tbl_author_stat %&lt;&gt;% 
   left_join(author_main_fos %&gt;% select(author_id, field_of_study_name), by = &#39;author_id&#39;) %&gt;%
   replace_na(list(field_of_study_name = &#39;others&#39;)) </code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-</div>
-</div>
-</div>
-<div id="regression-data-prep" class="section level1">
-<h1>Regression data prep</h1>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBDcmVhdGUgbWFpbiBkYXRhIHdpdGggcmVzdHJpY3Rpb25zIG9uIHR5cGVcbmRhdGEgPC0gdGJsX2F1dGhvcl9keW4gJT4lIFxuICBpbm5lcl9qb2luKHRibF9hdXRob3Jfc3RhdCAlPiUgc2VsZWN0KGF1dGhvcl9pZCwgZ2VuZGVyKSwgYnkgPSAnYXV0aG9yX2lkJykgJT4lXG4gIGRpc3RpbmN0KGF1dGhvcl9pZCwgeWVhciwgLmtlZXBfYWxsID0gVFJVRSlcbmBgYCJ9 -->
-<pre class="r"><code># Create main data with restrictions on type
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+
+
+# Regression data prep
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuIyBDcmVhdGUgbWFpbiBkYXRhIHdpdGggcmVzdHJpY3Rpb25zIG9uIHR5cGVcbmRhdGEgPC0gdGJsX2F1dGhvcl9keW4gJT4lIFxuICBpbm5lcl9qb2luKHRibF9hdXRob3Jfc3RhdCAlPiUgc2VsZWN0KGF1dGhvcl9pZCwgZ2VuZGVyKSwgYnkgPSAnYXV0aG9yX2lkJykgJT4lXG4gIGRpc3RpbmN0KGF1dGhvcl9pZCwgeWVhciwgLmtlZXBfYWxsID0gVFJVRSlcbmBgYFxuYGBgIn0= --&gt;
+
+```r
+```r
+# Create main data with restrictions on type
 data &lt;- tbl_author_dyn %&gt;% 
   inner_join(tbl_author_stat %&gt;% select(author_id, gender), by = &#39;author_id&#39;) %&gt;%
   distinct(author_id, year, .keep_all = TRUE)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBDcmVhdGUgc29tZSBpbmRlcGVuZGVudCB2YXJpYWJsZXNcbmRhdGEgJTw+JVxuICBncm91cF9ieShhdXRob3JfaWQpICU+JVxuICBtdXRhdGUoc2VuaW9yaXR5ID0geWVhciAtIG1pbih5ZWFyLCBuYS5ybSA9IFRSVUUpICsgMSxcbiAgICAgICAgIGNpdF9uID0gY2l0X21lYW4gKiBwYXBlcl9uLFxuICAgICAgICAgY2l0X25fY3VtID0gY2l0X24gJT4lIGN1bXN1bSgpKSAlPiVcbiAgIyBJbnRyb2R1Y2UgTGFnc1xuICBtdXRhdGUoY2l0X25fY3VtID0gY2l0X25fY3VtICU+JSBsYWcoMSksXG4gICAgICAgICBjZW50X2RnciA9IGNlbnRfZGdyICU+JSBsYWcoMSksXG4gICAgICAgICBjZW50X2Rncl9pbmQgPSBjZW50X2RnciAlPiUgbGFnKDEpLFxuICAgICAgICAgZGxfcmVzZWFyY2hlciA9IGRsX3Jlc2VhcmNoZXIgJT4lIGxhZygxKSxcbiAgICAgICAgIGZpZWxkX29mX3N0dWR5X25hbWUgPSBmaWVsZF9vZl9zdHVkeV9uYW1lICU+JSBsYWcoMSkpICU+JVxuICB1bmdyb3VwKCkgXG5gYGAifQ== -->
-<pre class="r"><code># Create some independent variables
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuIyBDcmVhdGUgc29tZSBpbmRlcGVuZGVudCB2YXJpYWJsZXNcbmRhdGEgJTw+JVxuICBncm91cF9ieShhdXRob3JfaWQpICU+JVxuICBtdXRhdGUoc2VuaW9yaXR5ID0geWVhciAtIG1pbih5ZWFyLCBuYS5ybSA9IFRSVUUpICsgMSxcbiAgICAgICAgIGNpdF9uID0gY2l0X21lYW4gKiBwYXBlcl9uLFxuICAgICAgICAgY2l0X25fY3VtID0gY2l0X24gJT4lIGN1bXN1bSgpKSAlPiVcbiAgIyBJbnRyb2R1Y2UgTGFnc1xuICBtdXRhdGUoY2l0X25fY3VtID0gY2l0X25fY3VtICU+JSBsYWcoMSksXG4gICAgICAgICBjZW50X2RnciA9IGNlbnRfZGdyICU+JSBsYWcoMSksXG4gICAgICAgICBjZW50X2Rncl9pbmQgPSBjZW50X2RnciAlPiUgbGFnKDEpLFxuICAgICAgICAgZGxfcmVzZWFyY2hlciA9IGRsX3Jlc2VhcmNoZXIgJT4lIGxhZygxKSxcbiAgICAgICAgIGZpZWxkX29mX3N0dWR5X25hbWUgPSBmaWVsZF9vZl9zdHVkeV9uYW1lICU+JSBsYWcoMSkpICU+JVxuICB1bmdyb3VwKCkgXG5gYGBcbmBgYCJ9 --&gt;
+
+```r
+```r
+# Create some independent variables
 data %&lt;&gt;%
   group_by(author_id) %&gt;%
   mutate(seniority = year - min(year, na.rm = TRUE) + 1,
@@ -3021,13 +3078,27 @@ data %&lt;&gt;%
          dl_researcher = dl_researcher %&gt;% lag(1),
          field_of_study_name = field_of_study_name %&gt;% lag(1)) %&gt;%
   ungroup() </code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBDcmVhdGUgRFZcbmRhdGEgJTw+JVxuICAjIENpdGF0aW9uIHJhbmtcbiAgZ3JvdXBfYnkoeWVhcikgJT4lXG4gIG11dGF0ZShjaXRhdGlvbl9yYW5rX3NpbmdsZSA9IGNpdF9tZWFuICU+JSBwZXJjZW50X3JhbmsoKSkgJT4lXG4gIHVuZ3JvdXAoKSAlPiVcbiAgIyBSb2xsaW5nIG1lYW5cbiAgYXJyYW5nZShhdXRob3JfaWQsIHllYXIpICU+JVxuICBncm91cF9ieShhdXRob3JfaWQpICU+JVxuICBtdXRhdGUoY2l0YXRpb25fcmFuayA9IGNpdGF0aW9uX3Jhbmtfc2luZ2xlICU+JSBzbGlkZXI6OnNsaWRlX2RibCh+bWVhbigueCksIC5iZWZvcmUgPSAyKSkgJT4lXG4gIHVuZ3JvdXAoKVxuYGBgIn0= -->
-<pre class="r"><code># Create DV
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuIyBDcmVhdGUgRFZcbmRhdGEgJTw+JVxuICAjIENpdGF0aW9uIHJhbmtcbiAgZ3JvdXBfYnkoeWVhcikgJT4lXG4gIG11dGF0ZShjaXRhdGlvbl9yYW5rX3NpbmdsZSA9IGNpdF9tZWFuICU+JSBwZXJjZW50X3JhbmsoKSkgJT4lXG4gIHVuZ3JvdXAoKSAlPiVcbiAgIyBSb2xsaW5nIG1lYW5cbiAgYXJyYW5nZShhdXRob3JfaWQsIHllYXIpICU+JVxuICBncm91cF9ieShhdXRob3JfaWQpICU+JVxuICBtdXRhdGUoY2l0YXRpb25fcmFuayA9IGNpdGF0aW9uX3Jhbmtfc2luZ2xlICU+JSBzbGlkZXI6OnNsaWRlX2RibCh+bWVhbigueCksIC5iZWZvcmUgPSAyKSkgJT4lXG4gIHVuZ3JvdXAoKVxuYGBgXG5gYGAifQ== --&gt;
+
+```r
+```r
+# Create DV
 data %&lt;&gt;%
   # Citation rank
   group_by(year) %&gt;%
@@ -3038,13 +3109,27 @@ data %&lt;&gt;%
   group_by(author_id) %&gt;%
   mutate(citation_rank = citation_rank_single %&gt;% slider::slide_dbl(~mean(.x), .before = 2)) %&gt;%
   ungroup()</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBTb21lIGxhc3QgcHJlcHJvY2Vzc2luZ1xuZGF0YSAlPD4lXG4gIGZpbHRlcih5ZWFyID49IDIwMDApICU+JSAgICAgICAgICBcbiAgZ3JvdXBfYnkoYXV0aG9yX2lkKSAlPiVcbiAgbXV0YXRlKHRpbWUgPSAxOm4oKSkgJT4lXG4gIHVuZ3JvdXAoKSAlPiVcbiAgbXV0YXRlKHllYXIgPSB5ZWFyICU+JSBmYWN0b3IoKSkgJT4lXG4gIGRyb3BfbmEoKSAlPiVcbiAgIyBuaWNlciBvcmRlclxuICByZWxvY2F0ZShhdXRob3JfaWQsIGF1dGhvcl90eXBlLCBnZW5kZXIsIHllYXIsIHRpbWUsIHN3aXRjaCwgdHJhbnNpdGVkLCBjaXRhdGlvbl9yYW5rLCBjaXRfbl9jdW0sIHBhcGVyX24pICU+JVxuICBhcnJhbmdlKGF1dGhvcl9pZCwgdGltZSlcbmBgYCJ9 -->
-<pre class="r"><code># Some last preprocessing
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuIyBTb21lIGxhc3QgcHJlcHJvY2Vzc2luZ1xuZGF0YSAlPD4lXG4gIGZpbHRlcih5ZWFyID49IDIwMDApICU+JSAgICAgICAgICBcbiAgZ3JvdXBfYnkoYXV0aG9yX2lkKSAlPiVcbiAgbXV0YXRlKHRpbWUgPSAxOm4oKSkgJT4lXG4gIHVuZ3JvdXAoKSAlPiVcbiAgbXV0YXRlKHllYXIgPSB5ZWFyICU+JSBmYWN0b3IoKSkgJT4lXG4gIGRyb3BfbmEoKSAlPiVcbiAgIyBuaWNlciBvcmRlclxuICByZWxvY2F0ZShhdXRob3JfaWQsIGF1dGhvcl90eXBlLCBnZW5kZXIsIHllYXIsIHRpbWUsIHN3aXRjaCwgdHJhbnNpdGVkLCBjaXRhdGlvbl9yYW5rLCBjaXRfbl9jdW0sIHBhcGVyX24pICU+JVxuICBhcnJhbmdlKGF1dGhvcl9pZCwgdGltZSlcbmBgYFxuYGBgIn0= --&gt;
+
+```r
+```r
+# Some last preprocessing
 data %&lt;&gt;%
   filter(year &gt;= 2000) %&gt;%          
   group_by(author_id) %&gt;%
@@ -3055,34 +3140,78 @@ data %&lt;&gt;%
   # nicer order
   relocate(author_id, author_type, gender, year, time, switch, transited, citation_rank, cit_n_cum, paper_n) %&gt;%
   arrange(author_id, time)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGF0YSAlPiUgc2F2ZVJEUygnLi4vLi4vdGVtcC9yZWdfZGF0YS5yZHMnKVxuYGBgIn0= -->
-<pre class="r"><code>data %&gt;% saveRDS(&#39;../../temp/reg_data.rds&#39;)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-</div>
-<div id="suvival-analysis" class="section level1">
-<h1>Suvival Analysis</h1>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShzdXJ2aXZhbClcbmxpYnJhcnkoc3Vydm1pbmVyKVxubGlicmFyeShnZ2ZvcnRpZnkpXG5gYGAifQ== -->
-<pre class="r"><code>library(survival)
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuZGF0YSAlPiUgc2F2ZVJEUygnLi4vLi4vdGVtcC9yZWdfZGF0YS5yZHMnKVxuYGBgXG5gYGAifQ== --&gt;
+
+```r
+```r
+data %&gt;% saveRDS(&#39;../../temp/reg_data.rds&#39;)</code></pre>
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+
+
+# Suvival Analysis 
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxubGlicmFyeShzdXJ2aXZhbClcbmxpYnJhcnkoc3Vydm1pbmVyKVxubGlicmFyeShnZ2ZvcnRpZnkpXG5gYGBcbmBgYCJ9 --&gt;
+
+```r
+```r
+library(survival)
 library(survminer)
 library(ggfortify)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<div id="preperation" class="section level2">
-<h2>PReperation</h2>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyMjIFByZXBhcmUgZm9yIHJlZ3Jlc3Npb25cbmRhdGFfc3VydiA8LSBkYXRhICU+JSBcbiAgIyBDYWxzbyBsYWcgY2l0YXRpb24gcmFua1xuICAjZ3JvdXBfYnkoYXV0aG9yX2lkKSAlPiVcbiAgI211dGF0ZShjaXRhdGlvbl9yYW5rID0gY2l0YXRpb25fcmFuayAlPiUgbGFnKDEpKSAlPiVcbiAgI3VuZ3JvdXAoKSAlPiVcbiAgIyBvdGhlciB2YXJpYWJsZXMgdG8gdHJ5XG4gIG11dGF0ZShzdGFyID0gY2l0YXRpb25fcmFuayA+PSAwLjkpXG5gYGAifQ== -->
-<pre class="r"><code>### Prepare for regression
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+## PReperation 
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuIyMjIFByZXBhcmUgZm9yIHJlZ3Jlc3Npb25cbmRhdGFfc3VydiA8LSBkYXRhICU+JSBcbiAgIyBDYWxzbyBsYWcgY2l0YXRpb24gcmFua1xuICAjZ3JvdXBfYnkoYXV0aG9yX2lkKSAlPiVcbiAgI211dGF0ZShjaXRhdGlvbl9yYW5rID0gY2l0YXRpb25fcmFuayAlPiUgbGFnKDEpKSAlPiVcbiAgI3VuZ3JvdXAoKSAlPiVcbiAgIyBvdGhlciB2YXJpYWJsZXMgdG8gdHJ5XG4gIG11dGF0ZShzdGFyID0gY2l0YXRpb25fcmFuayA+PSAwLjkpXG5gYGBcbmBgYCJ9 --&gt;
+
+```r
+```r
+### Prepare for regression
 data_surv &lt;- data %&gt;% 
   # Calso lag citation rank
   #group_by(author_id) %&gt;%
@@ -3090,24 +3219,52 @@ data_surv &lt;- data %&gt;%
   #ungroup() %&gt;%
   # other variables to try
   mutate(star = citation_rank &gt;= 0.9)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBTdXJmIG9iamVjdFxuc3Vydl9vYmplY3QgPC0gU3Vydih0aW1lID0gZGF0YV9zdXJ2JHRpbWUsIGV2ZW50ID0gZGF0YV9zdXJ2JHRyYW5zaXRlZClcbmBgYCJ9 -->
-<pre class="r"><code># Surf object
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuIyBTdXJmIG9iamVjdFxuc3Vydl9vYmplY3QgPC0gU3Vydih0aW1lID0gZGF0YV9zdXJ2JHRpbWUsIGV2ZW50ID0gZGF0YV9zdXJ2JHRyYW5zaXRlZClcbmBgYFxuYGBgIn0= --&gt;
+
+```r
+```r
+# Surf object
 surv_object &lt;- Surv(time = data_surv$time, event = data_surv$transited)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-</div>
-<div id="kaplan-meier-method-and-log-rank-test" class="section level2">
-<h2>Kaplan-Meier Method and Log Rank Test</h2>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZml0X2ttMCA8LSBzdXJ2Zml0KHN1cnZfb2JqZWN0IH4gMSwgXG4gICAgICAgICAgICAgICAgICAgZGF0YSA9IGRhdGFfc3VydilcbmZpdF9rbTEgPC0gc3VydmZpdChzdXJ2X29iamVjdCB+IHN0YXIsIFxuICAgICAgICAgICAgICAgICAgIGRhdGEgPSBkYXRhX3N1cnYpXG5maXRfa20yIDwtIHN1cnZmaXQoc3Vydl9vYmplY3QgfiBkbF9yZXNlYXJjaGVyLCBcbiAgICAgICAgICAgICAgICAgICBkYXRhID0gZGF0YV9zdXJ2KVxuZml0X2ttMyA8LSBzdXJ2Zml0KHN1cnZfb2JqZWN0IH4gZ2VuZGVyLFxuICAgICAgICAgICAgICAgICAgIGRhdGEgPSBkYXRhX3N1cnYpXG5gYGAifQ== -->
-<pre class="r"><code>fit_km0 &lt;- survfit(surv_object ~ 1, 
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+
+## Kaplan-Meier Method and Log Rank Test
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuZml0X2ttMCA8LSBzdXJ2Zml0KHN1cnZfb2JqZWN0IH4gMSwgXG4gICAgICAgICAgICAgICAgICAgZGF0YSA9IGRhdGFfc3VydilcbmZpdF9rbTEgPC0gc3VydmZpdChzdXJ2X29iamVjdCB+IHN0YXIsIFxuICAgICAgICAgICAgICAgICAgIGRhdGEgPSBkYXRhX3N1cnYpXG5maXRfa20yIDwtIHN1cnZmaXQoc3Vydl9vYmplY3QgfiBkbF9yZXNlYXJjaGVyLCBcbiAgICAgICAgICAgICAgICAgICBkYXRhID0gZGF0YV9zdXJ2KVxuZml0X2ttMyA8LSBzdXJ2Zml0KHN1cnZfb2JqZWN0IH4gZ2VuZGVyLFxuICAgICAgICAgICAgICAgICAgIGRhdGEgPSBkYXRhX3N1cnYpXG5gYGBcbmBgYCJ9 --&gt;
+
+```r
+```r
+fit_km0 &lt;- survfit(surv_object ~ 1, 
                    data = data_surv)
 fit_km1 &lt;- survfit(surv_object ~ star, 
                    data = data_surv)
@@ -3115,28 +3272,55 @@ fit_km2 &lt;- survfit(surv_object ~ dl_researcher,
                    data = data_surv)
 fit_km3 &lt;- survfit(surv_object ~ gender,
                    data = data_surv)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucDEgPC0gZml0X2ttMCAlPiUgYXV0b3Bsb3QoKSArIGxhYnModGl0bGU9ICdLTTogYmFzZWxpbmUnKVxucDIgPC0gZml0X2ttMSAlPiUgYXV0b3Bsb3QoKSArIGxhYnModGl0bGU9ICdLTTogU3RhciBjaXRhdGlvbnMnKVxucDMgPC0gZml0X2ttMiAlPiUgYXV0b3Bsb3QoKSArIGxhYnModGl0bGU9ICdLTTogREwgcmVzZWFyY2hlcicpXG5wNCA8LSBmaXRfa20zICU+JSBhdXRvcGxvdCgpICsgbGFicyh0aXRsZT0gJ0tNOiBHZW5kZXInKVxuXG4jKHAxICsgcDIpIC8gKHAzICsgcDQpICsgIHBsb3RfbGF5b3V0KGd1aWRlcyA9IFwiY29sbGVjdFwiKSAmIHRoZW1lKGxlZ2VuZC5wb3NpdGlvbiA9ICdib3R0b20nKSAmIGxhYnMoeCA9ICdUaW1lJywgeSA9ICdTdXJ2aXZhbCBQcm9iYWJpbGl0eScpXG5gYGAifQ== -->
-<pre class="r"><code>p1 &lt;- fit_km0 %&gt;% autoplot() + labs(title= &#39;KM: baseline&#39;)
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxucDEgPC0gZml0X2ttMCAlPiUgYXV0b3Bsb3QoKSArIGxhYnModGl0bGU9ICdLTTogYmFzZWxpbmUnKVxucDIgPC0gZml0X2ttMSAlPiUgYXV0b3Bsb3QoKSArIGxhYnModGl0bGU9ICdLTTogU3RhciBjaXRhdGlvbnMnKVxucDMgPC0gZml0X2ttMiAlPiUgYXV0b3Bsb3QoKSArIGxhYnModGl0bGU9ICdLTTogREwgcmVzZWFyY2hlcicpXG5wNCA8LSBmaXRfa20zICU+JSBhdXRvcGxvdCgpICsgbGFicyh0aXRsZT0gJ0tNOiBHZW5kZXInKVxuXG4jKHAxICsgcDIpIC8gKHAzICsgcDQpICsgIHBsb3RfbGF5b3V0KGd1aWRlcyA9IFxcY29sbGVjdFxcKSAmIHRoZW1lKGxlZ2VuZC5wb3NpdGlvbiA9ICdib3R0b20nKSAmIGxhYnMoeCA9ICdUaW1lJywgeSA9ICdTdXJ2aXZhbCBQcm9iYWJpbGl0eScpXG5gYGBcbmBgYCJ9 --&gt;
+
+```r
+```r
+p1 &lt;- fit_km0 %&gt;% autoplot() + labs(title= &#39;KM: baseline&#39;)
 p2 &lt;- fit_km1 %&gt;% autoplot() + labs(title= &#39;KM: Star citations&#39;)
 p3 &lt;- fit_km2 %&gt;% autoplot() + labs(title= &#39;KM: DL researcher&#39;)
 p4 &lt;- fit_km3 %&gt;% autoplot() + labs(title= &#39;KM: Gender&#39;)
 
-#(p1 + p2) / (p3 + p4) +  plot_layout(guides = &quot;collect&quot;) &amp; theme(legend.position = &#39;bottom&#39;) &amp; labs(x = &#39;Time&#39;, y = &#39;Survival Probability&#39;)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-</div>
-<div id="cox-proportional-hazard-model" class="section level2">
-<h2>Cox Proportional Hazard Model</h2>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyMjIEZpciBDb3ggcHJvcG9ydGlvbmFsIGhhemFyZCBtb2RlbFxuXG4jQmFzZWxpbmVcbmZpdF9jb3gwIDwtIGNveHBoKHN1cnZfb2JqZWN0IH4gc2VuaW9yaXR5ICsgZ2VuZGVyICsgZmllbGRfb2Zfc3R1ZHlfbmFtZSArIHllYXIsXG4gICAgICAgICAgICAgICAgICBkYXRhID0gZGF0YV9zdXJ2KVxuXG5maXRfY294MSA8LSBjb3hwaChzdXJ2X29iamVjdCB+IHNlbmlvcml0eSArIGdlbmRlciArIGZpZWxkX29mX3N0dWR5X25hbWUgICsgeWVhciArIGRsX3Jlc2VhcmNoZXIsXG4gICAgICAgICAgICAgICAgICBkYXRhID0gZGF0YV9zdXJ2KVxuXG5maXRfY294MiA8LSBjb3hwaChzdXJ2X29iamVjdCB+IHNlbmlvcml0eSArIGdlbmRlciArIGZpZWxkX29mX3N0dWR5X25hbWUgKyB5ZWFyICsgY2VudF9kZ3IgKyBjZW50X2Rncl9pbmQsXG4gICAgICAgICAgICAgICAgICBkYXRhID0gZGF0YV9zdXJ2KVxuXG5maXRfY294MyA8LSBjb3hwaChzdXJ2X29iamVjdCB+IHNlbmlvcml0eSArIGdlbmRlciArIGZpZWxkX29mX3N0dWR5X25hbWUgKyB5ZWFyICsgcGFwZXJfbiArIGNpdGF0aW9uX3JhbmsgKyBsb2coY2l0X25fY3VtICsgMSkgLFxuICAgICAgICAgICAgICAgICAgZGF0YSA9IGRhdGFfc3VydilcblxuZml0X2NveDQgPC0gY294cGgoc3Vydl9vYmplY3QgfiBzZW5pb3JpdHkgKyBnZW5kZXIgKyBmaWVsZF9vZl9zdHVkeV9uYW1lICsgeWVhciArIGRsX3Jlc2VhcmNoZXIgKyBjZW50X2RnciArIGNlbnRfZGdyX2luZCArICBwYXBlcl9uICsgY2l0YXRpb25fcmFuayArIGxvZyhjaXRfbl9jdW0gKyAxKSxcbiAgICAgICAgICAgICAgICAgIGRhdGEgPSBkYXRhX3N1cnYpXG5gYGAifQ== -->
-<pre class="r"><code>### Fir Cox proportional hazard model
+#(p1 + p2) / (p3 + p4) +  plot_layout(guides = \collect\) &amp; theme(legend.position = &#39;bottom&#39;) &amp; labs(x = &#39;Time&#39;, y = &#39;Survival Probability&#39;)</code></pre>
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+## Cox Proportional Hazard Model
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuIyMjIEZpciBDb3ggcHJvcG9ydGlvbmFsIGhhemFyZCBtb2RlbFxuXG4jQmFzZWxpbmVcbmZpdF9jb3gwIDwtIGNveHBoKHN1cnZfb2JqZWN0IH4gc2VuaW9yaXR5ICsgZ2VuZGVyICsgZmllbGRfb2Zfc3R1ZHlfbmFtZSArIHllYXIsXG4gICAgICAgICAgICAgICAgICBkYXRhID0gZGF0YV9zdXJ2KVxuXG5maXRfY294MSA8LSBjb3hwaChzdXJ2X29iamVjdCB+IHNlbmlvcml0eSArIGdlbmRlciArIGZpZWxkX29mX3N0dWR5X25hbWUgICsgeWVhciArIGRsX3Jlc2VhcmNoZXIsXG4gICAgICAgICAgICAgICAgICBkYXRhID0gZGF0YV9zdXJ2KVxuXG5maXRfY294MiA8LSBjb3hwaChzdXJ2X29iamVjdCB+IHNlbmlvcml0eSArIGdlbmRlciArIGZpZWxkX29mX3N0dWR5X25hbWUgKyB5ZWFyICsgY2VudF9kZ3IgKyBjZW50X2Rncl9pbmQsXG4gICAgICAgICAgICAgICAgICBkYXRhID0gZGF0YV9zdXJ2KVxuXG5maXRfY294MyA8LSBjb3hwaChzdXJ2X29iamVjdCB+IHNlbmlvcml0eSArIGdlbmRlciArIGZpZWxkX29mX3N0dWR5X25hbWUgKyB5ZWFyICsgcGFwZXJfbiArIGNpdGF0aW9uX3JhbmsgKyBsb2coY2l0X25fY3VtICsgMSkgLFxuICAgICAgICAgICAgICAgICAgZGF0YSA9IGRhdGFfc3VydilcblxuZml0X2NveDQgPC0gY294cGgoc3Vydl9vYmplY3QgfiBzZW5pb3JpdHkgKyBnZW5kZXIgKyBmaWVsZF9vZl9zdHVkeV9uYW1lICsgeWVhciArIGRsX3Jlc2VhcmNoZXIgKyBjZW50X2RnciArIGNlbnRfZGdyX2luZCArICBwYXBlcl9uICsgY2l0YXRpb25fcmFuayArIGxvZyhjaXRfbl9jdW0gKyAxKSxcbiAgICAgICAgICAgICAgICAgIGRhdGEgPSBkYXRhX3N1cnYpXG5gYGBcbmBgYCJ9 --&gt;
+
+```r
+```r
+### Fir Cox proportional hazard model
 
 #Baseline
 fit_cox0 &lt;- coxph(surv_object ~ seniority + gender + field_of_study_name + year,
@@ -3153,97 +3337,223 @@ fit_cox3 &lt;- coxph(surv_object ~ seniority + gender + field_of_study_name + ye
 
 fit_cox4 &lt;- coxph(surv_object ~ seniority + gender + field_of_study_name + year + dl_researcher + cent_dgr + cent_dgr_ind +  paper_n + citation_rank + log(cit_n_cum + 1),
                   data = data_surv)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3RhcmdhemVyKGZpdF9jb3gwLCBmaXRfY294MSwgZml0X2NveDIsIGZpdF9jb3gzLCBmaXRfY294NCwgdHlwZSA9ICdsYXRleCcsIFxuICAgICAgICAgIG9taXQgPSBjKCAnZmllbGRfb2Zfc3R1ZHlfbmFtZScsICd5ZWFyJywgJ0NvbnN0YW50JykpXG5gYGAifQ== -->
-<pre class="r"><code>stargazer(fit_cox0, fit_cox1, fit_cox2, fit_cox3, fit_cox4, type = &#39;latex&#39;, 
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuc3RhcmdhemVyKGZpdF9jb3gwLCBmaXRfY294MSwgZml0X2NveDIsIGZpdF9jb3gzLCBmaXRfY294NCwgdHlwZSA9ICdsYXRleCcsIFxuICAgICAgICAgIG9taXQgPSBjKCAnZmllbGRfb2Zfc3R1ZHlfbmFtZScsICd5ZWFyJywgJ0NvbnN0YW50JykpXG5gYGBcbmBgYCJ9 --&gt;
+
+```r
+```r
+stargazer(fit_cox0, fit_cox1, fit_cox2, fit_cox3, fit_cox4, type = &#39;latex&#39;, 
           omit = c( &#39;field_of_study_name&#39;, &#39;year&#39;, &#39;Constant&#39;))</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3RhcmdhemVyKGZpdF9jb3gwLCBmaXRfY294MSwgZml0X2NveDIsIGZpdF9jb3gzLCBmaXRfY294NCwgdHlwZSA9ICd0ZXh0JyxcbiAgICAgICAgICBvbWl0ID0gYyggJ2ZpZWxkX29mX3N0dWR5X25hbWUnLCAneWVhcicsICdDb25zdGFudCcpKVxuYGBgIn0= -->
-<pre class="r"><code>stargazer(fit_cox0, fit_cox1, fit_cox2, fit_cox3, fit_cox4, type = &#39;text&#39;,
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuc3RhcmdhemVyKGZpdF9jb3gwLCBmaXRfY294MSwgZml0X2NveDIsIGZpdF9jb3gzLCBmaXRfY294NCwgdHlwZSA9ICd0ZXh0JyxcbiAgICAgICAgICBvbWl0ID0gYyggJ2ZpZWxkX29mX3N0dWR5X25hbWUnLCAneWVhcicsICdDb25zdGFudCcpKVxuYGBgXG5gYGAifQ== --&gt;
+
+```r
+```r
+stargazer(fit_cox0, fit_cox1, fit_cox2, fit_cox3, fit_cox4, type = &#39;text&#39;,
           omit = c( &#39;field_of_study_name&#39;, &#39;year&#39;, &#39;Constant&#39;))</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZml0X2NveDQgJT4lIGdnZm9yZXN0KGRhdGEgPSBkYXRhX3N1cnYpXG5gYGAifQ== -->
-<pre class="r"><code>fit_cox4 %&gt;% ggforest(data = data_surv)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-</div>
-</div>
-<div id="propensity-score-matching" class="section level1">
-<h1>Propensity Score matching</h1>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShNYXRjaEl0KVxuYGBgIn0= -->
-<pre class="r"><code>library(MatchIt)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc2V0LnNlZWQoMTMzNylcbm1hdGNoX291dDwtICB0YmxfYXV0aG9yX3N0YXQgJT4lIFxuICAjIFByZXNlbGVjdGlvblxuICBzZWxlY3QoYXV0aG9yX2lkICwgYXV0aG9yX3R5cGUsIHBhcGVyX21lYW4sIGNpdF9tZWFuLCB5ZWFyX24sIHllYXJfZW5kLCBnZW5kZXIsIGZpZWxkX29mX3N0dWR5X25hbWUpICU+JVxuICBtdXRhdGUoYXV0aG9yX3R5cGUgPSAoYXV0aG9yX3R5cGUgJT4lIGZhY3RvcigpICU+JSBhcy5udW1lcmljKCkpIC0xICkgJT4lXG4gICMgTWF0Y2hpbmdcbiAgbWF0Y2hpdChhdXRob3JfdHlwZSB+IHBhcGVyX21lYW4gKyBjaXRfbWVhbiArIHllYXJfZW5kICsgZ2VuZGVyICsgZmllbGRfb2Zfc3R1ZHlfbmFtZSwgZXhhY3QgPSAneWVhcl9uJyxcbiAgICAgICAgICAgICAgICAgICAgICBkYXRhID0gLiwgdmVyYm9zZSA9IEZBTFNFLCBtZXRob2QgPSBcIm5lYXJlc3RcIiwgcmF0aW8gPSAxKSAjIE9SIG1ldGhvZCAgXCJnZW5ldGljXCIgLi4uIHRha2VzIGZvcmV2ZXIuLi4uLlxuYGBgIn0= -->
-<pre class="r"><code>set.seed(1337)
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuZml0X2NveDQgJT4lIGdnZm9yZXN0KGRhdGEgPSBkYXRhX3N1cnYpXG5gYGBcbmBgYCJ9 --&gt;
+
+```r
+```r
+fit_cox4 %&gt;% ggforest(data = data_surv)</code></pre>
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+
+
+# Propensity Score matching
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxubGlicmFyeShNYXRjaEl0KVxuYGBgXG5gYGAifQ== --&gt;
+
+```r
+```r
+library(MatchIt)</code></pre>
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuc2V0LnNlZWQoMTMzNylcbm1hdGNoX291dDwtICB0YmxfYXV0aG9yX3N0YXQgJT4lIFxuICAjIFByZXNlbGVjdGlvblxuICBzZWxlY3QoYXV0aG9yX2lkICwgYXV0aG9yX3R5cGUsIHBhcGVyX21lYW4sIGNpdF9tZWFuLCB5ZWFyX24sIHllYXJfZW5kLCBnZW5kZXIsIGZpZWxkX29mX3N0dWR5X25hbWUpICU+JVxuICBtdXRhdGUoYXV0aG9yX3R5cGUgPSAoYXV0aG9yX3R5cGUgJT4lIGZhY3RvcigpICU+JSBhcy5udW1lcmljKCkpIC0xICkgJT4lXG4gICMgTWF0Y2hpbmdcbiAgbWF0Y2hpdChhdXRob3JfdHlwZSB+IHBhcGVyX21lYW4gKyBjaXRfbWVhbiArIHllYXJfZW5kICsgZ2VuZGVyICsgZmllbGRfb2Zfc3R1ZHlfbmFtZSwgZXhhY3QgPSAneWVhcl9uJyxcbiAgICAgICAgICAgICAgICAgICAgICBkYXRhID0gLiwgdmVyYm9zZSA9IEZBTFNFLCBtZXRob2QgPSBcXG5lYXJlc3RcXCwgcmF0aW8gPSAxKSAjIE9SIG1ldGhvZCAgXFxnZW5ldGljXFwgLi4uIHRha2VzIGZvcmV2ZXIuLi4uLlxuYGBgXG5gYGAifQ== --&gt;
+
+```r
+```r
+set.seed(1337)
 match_out&lt;-  tbl_author_stat %&gt;% 
   # Preselection
   select(author_id , author_type, paper_mean, cit_mean, year_n, year_end, gender, field_of_study_name) %&gt;%
   mutate(author_type = (author_type %&gt;% factor() %&gt;% as.numeric()) -1 ) %&gt;%
   # Matching
   matchit(author_type ~ paper_mean + cit_mean + year_end + gender + field_of_study_name, exact = &#39;year_n&#39;,
-                      data = ., verbose = FALSE, method = &quot;nearest&quot;, ratio = 1) # OR method  &quot;genetic&quot; ... takes forever.....</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBNYXRjaCB0YWJsZSBmb3IgdXNlIGxhdGVyb25cbm1hdGNoX2RhdGEgPC0gbWF0Y2hfb3V0ICU+JSBcbiAgbWF0Y2guZGF0YSgpICU+JSBcbiAgYXNfdGliYmxlKCkgJT4lIFxuICBzZWxlY3QoYXV0aG9yX2lkLCBkaXN0YW5jZSwgd2VpZ2h0cylcbmBgYCJ9 -->
-<pre class="r"><code># Match table for use lateron
+                      data = ., verbose = FALSE, method = \nearest\, ratio = 1) # OR method  \genetic\ ... takes forever.....</code></pre>
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuIyBNYXRjaCB0YWJsZSBmb3IgdXNlIGxhdGVyb25cbm1hdGNoX2RhdGEgPC0gbWF0Y2hfb3V0ICU+JSBcbiAgbWF0Y2guZGF0YSgpICU+JSBcbiAgYXNfdGliYmxlKCkgJT4lIFxuICBzZWxlY3QoYXV0aG9yX2lkLCBkaXN0YW5jZSwgd2VpZ2h0cylcbmBgYFxuYGBgIn0= --&gt;
+
+```r
+```r
+# Match table for use lateron
 match_data &lt;- match_out %&gt;% 
   match.data() %&gt;% 
   as_tibble() %&gt;% 
   select(author_id, distance, weights)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubWF0Y2hlZF9wYWlycyAgPC0gYmluZF9jb2xzKCB0YmxfYXV0aG9yX3N0YXRbcm93Lm5hbWVzKG1hdGNoX291dCRtYXRjaC5tYXRyaXgpLFwiYXV0aG9yX2lkXCJdICwgdGJsX2F1dGhvcl9zdGF0W21hdGNoX291dCRtYXRjaC5tYXRyaXgsXCJhdXRob3JfaWRcIl0gKSAlPiVcbiAgcmVuYW1lKG9yaWdfYXV0aG9yX2lkID0gYGF1dGhvcl9pZC4uLjFgLFxuICAgICAgICAgYXV0aG9yX2lkID0gYGF1dGhvcl9pZC4uLjJgKSBcbmBgYCJ9 -->
-<pre class="r"><code>matched_pairs  &lt;- bind_cols( tbl_author_stat[row.names(match_out$match.matrix),&quot;author_id&quot;] , tbl_author_stat[match_out$match.matrix,&quot;author_id&quot;] ) %&gt;%
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxubWF0Y2hlZF9wYWlycyAgPC0gYmluZF9jb2xzKCB0YmxfYXV0aG9yX3N0YXRbcm93Lm5hbWVzKG1hdGNoX291dCRtYXRjaC5tYXRyaXgpLFxcYXV0aG9yX2lkXFxdICwgdGJsX2F1dGhvcl9zdGF0W21hdGNoX291dCRtYXRjaC5tYXRyaXgsXFxhdXRob3JfaWRcXF0gKSAlPiVcbiAgcmVuYW1lKG9yaWdfYXV0aG9yX2lkID0gYGF1dGhvcl9pZC4uLjFgLFxuICAgICAgICAgYXV0aG9yX2lkID0gYGF1dGhvcl9pZC4uLjJgKSBcbmBgYFxuYGBgIn0= --&gt;
+
+```r
+```r
+matched_pairs  &lt;- bind_cols( tbl_author_stat[row.names(match_out$match.matrix),\author_id\] , tbl_author_stat[match_out$match.matrix,\author_id\] ) %&gt;%
   rename(orig_author_id = `author_id...1`,
          author_id = `author_id...2`) </code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBHZXQgdGhlIHRpbWUgd2hlcmUgdGhlIG1hdGNoZWQgc3dpdGNoZXIgdHJhbnNpdHNcbm1hdGNoZWRfcGFpcnMgJTw+JVxuICBsZWZ0X2pvaW4oZGF0YSAlPiUgZmlsdGVyKHN3aXRjaCA9PSBUUlVFKSAlPiUgc2VsZWN0KGF1dGhvcl9pZCwgdGltZSkgJT4lIGRpc3RpbmN0KGF1dGhvcl9pZCwgLmtlZXBfYWxsID0gVFJVRSksIGJ5ID0gYygnb3JpZ19hdXRob3JfaWQnID0gJ2F1dGhvcl9pZCcpKSAlPiVcbiAgbXV0YXRlKHN3aXRjaCA9IFRSVUUpICU+JVxuICBkcm9wX25hKCkgXG5gYGAifQ== -->
-<pre class="r"><code># Get the time where the matched switcher transits
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuIyBHZXQgdGhlIHRpbWUgd2hlcmUgdGhlIG1hdGNoZWQgc3dpdGNoZXIgdHJhbnNpdHNcbm1hdGNoZWRfcGFpcnMgJTw+JVxuICBsZWZ0X2pvaW4oZGF0YSAlPiUgZmlsdGVyKHN3aXRjaCA9PSBUUlVFKSAlPiUgc2VsZWN0KGF1dGhvcl9pZCwgdGltZSkgJT4lIGRpc3RpbmN0KGF1dGhvcl9pZCwgLmtlZXBfYWxsID0gVFJVRSksIGJ5ID0gYygnb3JpZ19hdXRob3JfaWQnID0gJ2F1dGhvcl9pZCcpKSAlPiVcbiAgbXV0YXRlKHN3aXRjaCA9IFRSVUUpICU+JVxuICBkcm9wX25hKCkgXG5gYGBcbmBgYCJ9 --&gt;
+
+```r
+```r
+# Get the time where the matched switcher transits
 matched_pairs %&lt;&gt;%
   left_join(data %&gt;% filter(switch == TRUE) %&gt;% select(author_id, time) %&gt;% distinct(author_id, .keep_all = TRUE), by = c(&#39;orig_author_id&#39; = &#39;author_id&#39;)) %&gt;%
   mutate(switch = TRUE) %&gt;%
   drop_na() </code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-</div>
-<div id="diff-in-diff" class="section level1">
-<h1>Diff-in-Diff</h1>
-<div id="preprocessing" class="section level2">
-<h2>Preprocessing</h2>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBGaWx0ZXIgb25seSBOTiBtYXRjaGVkIGF1dGhvciBwYWlyc1xuZGF0YV9kaWQgPC0gZGF0YSAlPiVcbiAgc2VtaV9qb2luKG1hdGNoX2RhdGEsIGJ5ID0gJ2F1dGhvcl9pZCcpXG5cbiMgVXBkYXRlIHRoZSBjb3JyZXNwb25kaW5nIHRyYW5zaXRpb24gdGltZSBvZiB1bml2ZXJzaXR5IGJ5IHRoZWlyIG1hdGNoZWQgc3dpdGNoZXJcbmRhdGFfZGlkICU8PiVcbiAgcm93c191cGRhdGUobWF0Y2hlZF9wYWlycyAlPiUgc2VsZWN0KC1vcmlnX2F1dGhvcl9pZCksIGJ5ID0gYygnYXV0aG9yX2lkJywgJ3RpbWUnKSlcblxuIyBVcGRhdGUgVHJhbnNpdGVkXG5kYXRhX2RpZCAlPD4lXG4gIG11dGF0ZSh0cmFuc2l0ZWQgPSBOQSkgJT4lXG4gIGdyb3VwX2J5KGF1dGhvcl9pZCkgJT4lXG4gIG11dGF0ZSh0cmFuc2l0ZWQgPSBpZmVsc2UobGFnKHN3aXRjaCwgMSkgPT0gVFJVRSwgVFJVRSwgdHJhbnNpdGVkKSkgJT4lXG4gIGZpbGwodHJhbnNpdGVkLCAuZGlyZWN0aW9uID0gJ2Rvd24nKSAlPiVcbiAgcmVwbGFjZV9uYShsaXN0KCd0cmFuc2l0ZWQnID0gRkFMU0UpKSAlPiVcbiAgdW5ncm91cCgpXG5gYGAifQ== -->
-<pre class="r"><code># Filter only NN matched author pairs
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+
+# Diff-in-Diff
+
+## Preprocessing
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuIyBGaWx0ZXIgb25seSBOTiBtYXRjaGVkIGF1dGhvciBwYWlyc1xuZGF0YV9kaWQgPC0gZGF0YSAlPiVcbiAgc2VtaV9qb2luKG1hdGNoX2RhdGEsIGJ5ID0gJ2F1dGhvcl9pZCcpXG5cbiMgVXBkYXRlIHRoZSBjb3JyZXNwb25kaW5nIHRyYW5zaXRpb24gdGltZSBvZiB1bml2ZXJzaXR5IGJ5IHRoZWlyIG1hdGNoZWQgc3dpdGNoZXJcbmRhdGFfZGlkICU8PiVcbiAgcm93c191cGRhdGUobWF0Y2hlZF9wYWlycyAlPiUgc2VsZWN0KC1vcmlnX2F1dGhvcl9pZCksIGJ5ID0gYygnYXV0aG9yX2lkJywgJ3RpbWUnKSlcblxuIyBVcGRhdGUgVHJhbnNpdGVkXG5kYXRhX2RpZCAlPD4lXG4gIG11dGF0ZSh0cmFuc2l0ZWQgPSBOQSkgJT4lXG4gIGdyb3VwX2J5KGF1dGhvcl9pZCkgJT4lXG4gIG11dGF0ZSh0cmFuc2l0ZWQgPSBpZmVsc2UobGFnKHN3aXRjaCwgMSkgPT0gVFJVRSwgVFJVRSwgdHJhbnNpdGVkKSkgJT4lXG4gIGZpbGwodHJhbnNpdGVkLCAuZGlyZWN0aW9uID0gJ2Rvd24nKSAlPiVcbiAgcmVwbGFjZV9uYShsaXN0KCd0cmFuc2l0ZWQnID0gRkFMU0UpKSAlPiVcbiAgdW5ncm91cCgpXG5gYGBcbmBgYCJ9 --&gt;
+
+```r
+```r
+# Filter only NN matched author pairs
 data_did &lt;- data %&gt;%
   semi_join(match_data, by = &#39;author_id&#39;)
 
@@ -3259,54 +3569,123 @@ data_did %&lt;&gt;%
   fill(transited, .direction = &#39;down&#39;) %&gt;%
   replace_na(list(&#39;transited&#39; = FALSE)) %&gt;%
   ungroup()</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBTb21lIGV4dHJhIHZhcmlhYmxlc1xuZGF0YV9kaWQgJTw+JVxuICBncm91cF9ieShhdXRob3JfaWQpICU+JVxuICBtdXRhdGUoc3dpdGNoZXIgPSBhdXRob3JfdHlwZSA9PSAnc3dpdGNoZXInLFxuICAgICAgICAgdHJhbnNpdGVkX3QgPSBpZmVsc2UodHJhbnNpdGVkID09IFRSVUUsIDEsIDApKSAlPiVcbiAgbXV0YXRlKHRyYW5zaXRlZF90ID0gdHJhbnNpdGVkX3QgJT4lY3Vtc3VtKCkpICU+JVxuICB1bmdyb3VwKClcbmBgYCJ9 -->
-<pre class="r"><code># Some extra variables
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuIyBTb21lIGV4dHJhIHZhcmlhYmxlc1xuZGF0YV9kaWQgJTw+JVxuICBncm91cF9ieShhdXRob3JfaWQpICU+JVxuICBtdXRhdGUoc3dpdGNoZXIgPSBhdXRob3JfdHlwZSA9PSAnc3dpdGNoZXInLFxuICAgICAgICAgdHJhbnNpdGVkX3QgPSBpZmVsc2UodHJhbnNpdGVkID09IFRSVUUsIDEsIDApKSAlPiVcbiAgbXV0YXRlKHRyYW5zaXRlZF90ID0gdHJhbnNpdGVkX3QgJT4lY3Vtc3VtKCkpICU+JVxuICB1bmdyb3VwKClcbmBgYFxuYGBgIn0= --&gt;
+
+```r
+```r
+# Some extra variables
 data_did %&lt;&gt;%
   group_by(author_id) %&gt;%
   mutate(switcher = author_type == &#39;switcher&#39;,
          transited_t = ifelse(transited == TRUE, 1, 0)) %&gt;%
   mutate(transited_t = transited_t %&gt;%cumsum()) %&gt;%
   ungroup()</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBOaWNlciBvcmRlcmluZ1xuZGF0YV9kaWQgJTw+JVxuICByZWxvY2F0ZShhdXRob3JfaWQsIGF1dGhvcl90eXBlLCBnZW5kZXIsIHllYXIsIHRpbWUsIHN3aXRjaCwgdHJhbnNpdGVkLCB0cmFuc2l0ZWRfdCwgY2l0YXRpb25fcmFuaywgY2l0X25fY3VtLCBwYXBlcl9uKSAlPiVcbiAgYXJyYW5nZShhdXRob3JfaWQsIHRpbWUpXG5gYGAifQ== -->
-<pre class="r"><code># Nicer ordering
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuIyBOaWNlciBvcmRlcmluZ1xuZGF0YV9kaWQgJTw+JVxuICByZWxvY2F0ZShhdXRob3JfaWQsIGF1dGhvcl90eXBlLCBnZW5kZXIsIHllYXIsIHRpbWUsIHN3aXRjaCwgdHJhbnNpdGVkLCB0cmFuc2l0ZWRfdCwgY2l0YXRpb25fcmFuaywgY2l0X25fY3VtLCBwYXBlcl9uKSAlPiVcbiAgYXJyYW5nZShhdXRob3JfaWQsIHRpbWUpXG5gYGBcbmBgYCJ9 --&gt;
+
+```r
+```r
+# Nicer ordering
 data_did %&lt;&gt;%
   relocate(author_id, author_type, gender, year, time, switch, transited, transited_t, citation_rank, cit_n_cum, paper_n) %&gt;%
   arrange(author_id, time)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBGb3IgdGhlIGludGVyYWN0aW9uIHBsb3QgY29kZSBsb2dpY2FsIHRvIG51bWVyaWNcbiMgZGF0YV9kaWQgJTw+JSAgbXV0YXRlKHN3aXRjaGVyID0gc3dpdGNoZXIgJT4lIGFzLm51bWVyaWMoKSwgdHJhbnNpdGVkID0gdHJhbnNpdGVkICU+JSBhcy5udW1lcmljKCkpXG5gYGAifQ== -->
-<pre class="r"><code># For the interaction plot code logical to numeric
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuIyBGb3IgdGhlIGludGVyYWN0aW9uIHBsb3QgY29kZSBsb2dpY2FsIHRvIG51bWVyaWNcbiMgZGF0YV9kaWQgJTw+JSAgbXV0YXRlKHN3aXRjaGVyID0gc3dpdGNoZXIgJT4lIGFzLm51bWVyaWMoKSwgdHJhbnNpdGVkID0gdHJhbnNpdGVkICU+JSBhcy5udW1lcmljKCkpXG5gYGBcbmBgYCJ9 --&gt;
+
+```r
+```r
+# For the interaction plot code logical to numeric
 # data_did %&lt;&gt;%  mutate(switcher = switcher %&gt;% as.numeric(), transited = transited %&gt;% as.numeric())</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGF0YV9kaWQgJT4lIHNhdmVSRFMoJy4uLy4uL3RlbXAvcmVnX2RhdGFfZGlkLnJkcycpXG5gYGAifQ== -->
-<pre class="r"><code>data_did %&gt;% saveRDS(&#39;../../temp/reg_data_did.rds&#39;)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-</div>
-<div id="models" class="section level2">
-<h2>Models</h2>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBmaXRfZGlkXzAgPC0gbG0oY2l0YXRpb25fcmFuayB+IHN3aXRjaGVyICsgZmllbGRfb2Zfc3R1ZHlfbmFtZSwgZGF0YSA9IGRhdGFfZGlkKVxuXG5maXRfZGlkXzAgPC0gbG0oY2l0YXRpb25fcmFuayB+IChzd2l0Y2hlciArIHRyYW5zaXRlZCleMiArIGZpZWxkX29mX3N0dWR5X25hbWUgKyB5ZWFyICsgc2VuaW9yaXR5ICsgZ2VuZGVyICsgZmllbGRfb2Zfc3R1ZHlfbmFtZVxuICAgICAgICAgICAgICAgICwgZGF0YSA9IGRhdGFfZGlkKVxuZml0X2RpZF8xIDwtIGxtKGNpdGF0aW9uX3JhbmsgfiAoc3dpdGNoZXIgKyB0cmFuc2l0ZWQpXjIgKyBmaWVsZF9vZl9zdHVkeV9uYW1lICsgeWVhciArIHNlbmlvcml0eSArIGdlbmRlciArIGZpZWxkX29mX3N0dWR5X25hbWUgKyBjZW50X2RnciArIGNlbnRfZGdyX2luZFxuICAgICAgICAgICAgICAgICwgZGF0YSA9IGRhdGFfZGlkKVxuZml0X2RpZF8yIDwtIGxtKGNpdGF0aW9uX3JhbmsgfiAoc3dpdGNoZXIgKyB0cmFuc2l0ZWQpXjIgKyBmaWVsZF9vZl9zdHVkeV9uYW1lICsgeWVhciArIHNlbmlvcml0eSArIGdlbmRlciArIGZpZWxkX29mX3N0dWR5X25hbWUgKyAoc3dpdGNoZXIgKyB0cmFuc2l0ZWRfdCleMlxuICAgICAgICAgICAgICAgICwgZGF0YSA9IGRhdGFfZGlkKVxuZml0X2RpZF8zIDwtIGxtKGNpdGF0aW9uX3JhbmsgfiAoc3dpdGNoZXIgKyB0cmFuc2l0ZWQpXjIgKyBmaWVsZF9vZl9zdHVkeV9uYW1lICsgeWVhciArIHNlbmlvcml0eSArIGdlbmRlciArIGZpZWxkX29mX3N0dWR5X25hbWUgKyAoc3dpdGNoZXIgKyB0cmFuc2l0ZWRfdCleMiArIGNlbnRfZGdyICsgY2VudF9kZ3JfaW5kIFxuICAgICAgICAgICAgICAgICwgZGF0YSA9IGRhdGFfZGlkKVxuXG4jICsgcGFwZXJfbiA/XG5gYGAifQ== -->
-<pre class="r"><code># fit_did_0 &lt;- lm(citation_rank ~ switcher + field_of_study_name, data = data_did)
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuZGF0YV9kaWQgJT4lIHNhdmVSRFMoJy4uLy4uL3RlbXAvcmVnX2RhdGFfZGlkLnJkcycpXG5gYGBcbmBgYCJ9 --&gt;
+
+```r
+```r
+data_did %&gt;% saveRDS(&#39;../../temp/reg_data_did.rds&#39;)</code></pre>
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+## Models
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuIyBmaXRfZGlkXzAgPC0gbG0oY2l0YXRpb25fcmFuayB+IHN3aXRjaGVyICsgZmllbGRfb2Zfc3R1ZHlfbmFtZSwgZGF0YSA9IGRhdGFfZGlkKVxuXG5maXRfZGlkXzAgPC0gbG0oY2l0YXRpb25fcmFuayB+IChzd2l0Y2hlciArIHRyYW5zaXRlZCleMiArIGZpZWxkX29mX3N0dWR5X25hbWUgKyB5ZWFyICsgc2VuaW9yaXR5ICsgZ2VuZGVyICsgZmllbGRfb2Zfc3R1ZHlfbmFtZVxuICAgICAgICAgICAgICAgICwgZGF0YSA9IGRhdGFfZGlkKVxuZml0X2RpZF8xIDwtIGxtKGNpdGF0aW9uX3JhbmsgfiAoc3dpdGNoZXIgKyB0cmFuc2l0ZWQpXjIgKyBmaWVsZF9vZl9zdHVkeV9uYW1lICsgeWVhciArIHNlbmlvcml0eSArIGdlbmRlciArIGZpZWxkX29mX3N0dWR5X25hbWUgKyBjZW50X2RnciArIGNlbnRfZGdyX2luZFxuICAgICAgICAgICAgICAgICwgZGF0YSA9IGRhdGFfZGlkKVxuZml0X2RpZF8yIDwtIGxtKGNpdGF0aW9uX3JhbmsgfiAoc3dpdGNoZXIgKyB0cmFuc2l0ZWQpXjIgKyBmaWVsZF9vZl9zdHVkeV9uYW1lICsgeWVhciArIHNlbmlvcml0eSArIGdlbmRlciArIGZpZWxkX29mX3N0dWR5X25hbWUgKyAoc3dpdGNoZXIgKyB0cmFuc2l0ZWRfdCleMlxuICAgICAgICAgICAgICAgICwgZGF0YSA9IGRhdGFfZGlkKVxuZml0X2RpZF8zIDwtIGxtKGNpdGF0aW9uX3JhbmsgfiAoc3dpdGNoZXIgKyB0cmFuc2l0ZWQpXjIgKyBmaWVsZF9vZl9zdHVkeV9uYW1lICsgeWVhciArIHNlbmlvcml0eSArIGdlbmRlciArIGZpZWxkX29mX3N0dWR5X25hbWUgKyAoc3dpdGNoZXIgKyB0cmFuc2l0ZWRfdCleMiArIGNlbnRfZGdyICsgY2VudF9kZ3JfaW5kIFxuICAgICAgICAgICAgICAgICwgZGF0YSA9IGRhdGFfZGlkKVxuXG4jICsgcGFwZXJfbiA/XG5gYGBcbmBgYCJ9 --&gt;
+
+```r
+```r
+# fit_did_0 &lt;- lm(citation_rank ~ switcher + field_of_study_name, data = data_did)
 
 fit_did_0 &lt;- lm(citation_rank ~ (switcher + transited)^2 + field_of_study_name + year + seniority + gender + field_of_study_name
                 , data = data_did)
@@ -3318,73 +3697,172 @@ fit_did_3 &lt;- lm(citation_rank ~ (switcher + transited)^2 + field_of_study_nam
                 , data = data_did)
 
 # + paper_n ?</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3RhcmdhemVyKGZpdF9kaWRfMCwgZml0X2RpZF8xLCBmaXRfZGlkXzIsIGZpdF9kaWRfMywgdHlwZSA9ICd0ZXh0JyxcbiAgICAgICAgICBvbWl0ID0gYygnZmllbGRfb2Zfc3R1ZHlfbmFtZScsICd5ZWFyJywgJ0NvbnN0YW50JykpXG5gYGAifQ== -->
-<pre class="r"><code>stargazer(fit_did_0, fit_did_1, fit_did_2, fit_did_3, type = &#39;text&#39;,
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuc3RhcmdhemVyKGZpdF9kaWRfMCwgZml0X2RpZF8xLCBmaXRfZGlkXzIsIGZpdF9kaWRfMywgdHlwZSA9ICd0ZXh0JyxcbiAgICAgICAgICBvbWl0ID0gYygnZmllbGRfb2Zfc3R1ZHlfbmFtZScsICd5ZWFyJywgJ0NvbnN0YW50JykpXG5gYGBcbmBgYCJ9 --&gt;
+
+```r
+```r
+stargazer(fit_did_0, fit_did_1, fit_did_2, fit_did_3, type = &#39;text&#39;,
           omit = c(&#39;field_of_study_name&#39;, &#39;year&#39;, &#39;Constant&#39;))</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3RhcmdhemVyKGZpdF9kaWRfMCwgZml0X2RpZF8xLCBmaXRfZGlkXzIsIGZpdF9kaWRfMywgdHlwZSA9ICd0ZXh0JyxcbiAgICAgICAgICBvbWl0ID0gYygnZmllbGRfb2Zfc3R1ZHlfbmFtZScsICd5ZWFyJywgJ0NvbnN0YW50JykpXG5gYGAifQ== -->
-<pre class="r"><code>stargazer(fit_did_0, fit_did_1, fit_did_2, fit_did_3, type = &#39;text&#39;,
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuc3RhcmdhemVyKGZpdF9kaWRfMCwgZml0X2RpZF8xLCBmaXRfZGlkXzIsIGZpdF9kaWRfMywgdHlwZSA9ICd0ZXh0JyxcbiAgICAgICAgICBvbWl0ID0gYygnZmllbGRfb2Zfc3R1ZHlfbmFtZScsICd5ZWFyJywgJ0NvbnN0YW50JykpXG5gYGBcbmBgYCJ9 --&gt;
+
+```r
+```r
+stargazer(fit_did_0, fit_did_1, fit_did_2, fit_did_3, type = &#39;text&#39;,
           omit = c(&#39;field_of_study_name&#39;, &#39;year&#39;, &#39;Constant&#39;))</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3RhcmdhemVyKGZpdF9kaWRfMCwgZml0X2RpZF8xLCBmaXRfZGlkXzIsIGZpdF9kaWRfMywgdHlwZSA9ICdsYXRleCcsXG4gICAgICAgICAgb21pdCA9IGMoJ2ZpZWxkX29mX3N0dWR5X25hbWUnLCAneWVhcicsICdDb25zdGFudCcpKVxuYGBgIn0= -->
-<pre class="r"><code>stargazer(fit_did_0, fit_did_1, fit_did_2, fit_did_3, type = &#39;latex&#39;,
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuc3RhcmdhemVyKGZpdF9kaWRfMCwgZml0X2RpZF8xLCBmaXRfZGlkXzIsIGZpdF9kaWRfMywgdHlwZSA9ICdsYXRleCcsXG4gICAgICAgICAgb21pdCA9IGMoJ2ZpZWxkX29mX3N0dWR5X25hbWUnLCAneWVhcicsICdDb25zdGFudCcpKVxuYGBgXG5gYGAifQ== --&gt;
+
+```r
+```r
+stargazer(fit_did_0, fit_did_1, fit_did_2, fit_did_3, type = &#39;latex&#39;,
           omit = c(&#39;field_of_study_name&#39;, &#39;year&#39;, &#39;Constant&#39;))</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<div id="template-new-plotting-model" class="section level3">
-<h3>Template new plotting model</h3>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuI2xpYnJhcnkoaW50ZXJwbG90KVxuI2ZpdF9kaWRfMiAlPiUgaW50ZXJwbG90KHZhcjEgPVwic3dpdGNoZXJcIiwgdmFyMiA9IFwidHJhbnNpdGVkX3RcIiwgaGlzdCA9IFRSVUUpIFxuYGBgIn0= -->
-<pre class="r"><code>#library(interplot)
-#fit_did_2 %&gt;% interplot(var1 =&quot;switcher&quot;, var2 = &quot;transited_t&quot;, hist = TRUE) </code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShpbnRlcmFjdGlvbnMpXG5maXRfZGlkXzIgJT4lIGludGVyYWN0X3Bsb3QocHJlZCA9IHRyYW5zaXRlZF90LCBtb2R4ID0gc3dpdGNoZXIsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgaW50ZXJ2YWwgPSBUUlVFKSArXG4gIHRoZW1lKGxlZ2VuZC5wb3NpdGlvbiA9ICdib3R0b20nKVxuXG5gYGAifQ== -->
-<pre class="r"><code>library(interactions)
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+
+### Template new plotting model
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuI2xpYnJhcnkoaW50ZXJwbG90KVxuI2ZpdF9kaWRfMiAlPiUgaW50ZXJwbG90KHZhcjEgPVxcc3dpdGNoZXJcXCwgdmFyMiA9IFxcdHJhbnNpdGVkX3RcXCwgaGlzdCA9IFRSVUUpIFxuYGBgXG5gYGAifQ== --&gt;
+
+```r
+```r
+#library(interplot)
+#fit_did_2 %&gt;% interplot(var1 =\switcher\, var2 = \transited_t\, hist = TRUE) </code></pre>
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxubGlicmFyeShpbnRlcmFjdGlvbnMpXG5maXRfZGlkXzIgJT4lIGludGVyYWN0X3Bsb3QocHJlZCA9IHRyYW5zaXRlZF90LCBtb2R4ID0gc3dpdGNoZXIsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgaW50ZXJ2YWwgPSBUUlVFKSArXG4gIHRoZW1lKGxlZ2VuZC5wb3NpdGlvbiA9ICdib3R0b20nKVxuXG5gYGBcbmBgYCJ9 --&gt;
+
+```r
+```r
+library(interactions)
 fit_did_2 %&gt;% interact_plot(pred = transited_t, modx = switcher,
                             interval = TRUE) +
   theme(legend.position = &#39;bottom&#39;)
 </code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZ2dzYXZlKCcuLi8uLi9vdXRwdXQvZmlnX2ludGVyYWN0aW9uXzEucG5nJywgd2lkdGggPSAxMCwgaGVpZ2h0ID0gNy41LCB1bml0cyA9ICdjbScpXG5gYGAifQ== -->
-<pre class="r"><code>ggsave(&#39;../../output/fig_interaction_1.png&#39;, width = 10, height = 7.5, units = &#39;cm&#39;)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShpbnRlcmFjdGlvbnMpXG5maXRfZGlkXzIgJT4lIGludGVyYWN0X3Bsb3QocHJlZCA9IHRyYW5zaXRlZF90LCBtb2R4ID0gc3dpdGNoZXIsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgaW50ZXJ2YWwgPSBUUlVFLCBsaW5lYXJpdHkuY2hlY2sgPSBUUlVFKVxuYGBgIn0= -->
-<pre class="r"><code>library(interactions)
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuZ2dzYXZlKCcuLi8uLi9vdXRwdXQvZmlnX2ludGVyYWN0aW9uXzEucG5nJywgd2lkdGggPSAxMCwgaGVpZ2h0ID0gNy41LCB1bml0cyA9ICdjbScpXG5gYGBcbmBgYCJ9 --&gt;
+
+```r
+```r
+ggsave(&#39;../../output/fig_interaction_1.png&#39;, width = 10, height = 7.5, units = &#39;cm&#39;)</code></pre>
+<pre><code>
+&lt;!-- rnb-source-end --&gt;
+
+&lt;!-- rnb-chunk-end --&gt;
+
+
+&lt;!-- rnb-text-begin --&gt;
+
+
+
+
+&lt;!-- rnb-text-end --&gt;
+
+
+&lt;!-- rnb-chunk-begin --&gt;
+
+
+&lt;!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxubGlicmFyeShpbnRlcmFjdGlvbnMpXG5maXRfZGlkXzIgJT4lIGludGVyYWN0X3Bsb3QocHJlZCA9IHRyYW5zaXRlZF90LCBtb2R4ID0gc3dpdGNoZXIsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgaW50ZXJ2YWwgPSBUUlVFLCBsaW5lYXJpdHkuY2hlY2sgPSBUUlVFKVxuYGBgXG5gYGAifQ== --&gt;
+
+```r
+```r
+library(interactions)
 fit_did_2 %&gt;% interact_plot(pred = transited_t, modx = switcher,
                             interval = TRUE, linearity.check = TRUE)</code></pre>
+<p>```</p>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
-</div>
-</div>
 </div>
 
 <div id="rmd-source-code">LS0tCnRpdGxlOiAnUHJpdmF0aXphdGlvbiBvZiBBSSByZXNlYXJjaDogRXhlY3V0aW5nIHJlZ3Jlc3Npb25zJwphdXRob3I6ICJEYW5pZWwgUy4gSGFpbiAoZHNoQGJ1c2luZXNzLmFhdS5kaykiCmRhdGU6ICJVcGRhdGVkIGByIGZvcm1hdChTeXMudGltZSgpLCAnJUIgJWQsICVZJylgIgpvdXRwdXQ6CiAgaHRtbF9ub3RlYm9vazoKICAgIGNvZGVfZm9sZGluZzogaGlkZQogICAgZGZfcHJpbnQ6IHBhZ2VkCiAgICB0b2M6IHRydWUKICAgIHRvY19kZXB0aDogMgogICAgdG9jX2Zsb2F0OgogICAgICBjb2xsYXBzZWQ6IGZhbHNlCiAgICB0aGVtZTogZmxhdGx5Ci0tLQoKYGBge3Igc2V0dXAsIGluY2x1ZGU9RkFMU0V9CiMgS25pdHIgb3B0aW9ucwojIyMgR2VuZXJpYyBwcmVhbWJsZQpybShsaXN0ID0gbHMoYWxsLm5hbWVzID0gVFJVRSkpICN3aWxsIGNsZWFyIGFsbCBvYmplY3RzIGluY2x1ZGVzIGhpZGRlbiBvYmplY3RzLgpnYygpICNmcmVlIHVwIG1lbXJvcnkgYW5kIHJlcG9ydCB0aGUgbWVtb3J5IHVzYWdlLgpncmFwaGljcy5vZmYoKQoKU3lzLnNldGVudihMQU5HID0gImVuIikgIyBGb3IgZW5nbGlzaCBsYW5ndWFnZQpvcHRpb25zKHNjaXBlbiA9IDUpICMgVG8gZGVhY3RpdmF0ZSBhbm5veWluZyBzY2llbnRpZmljIG51bWJlciBub3RhdGlvbgoKIyMjIExvYWQgcGFja2FnZXMKbGlicmFyeSh0aWR5dmVyc2UpICMgQ29sbGVjdGlvbiBvZiBhbGwgdGhlIGdvb2Qgc3R1ZmYgbGlrZSBkcGx5ciwgZ2dwbG90MiBlY3QuCmxpYnJhcnkobWFncml0dHIpICMgRm9yIGV4dHJhLXBpcGluZyBvcGVyYXRvcnMgKGVnLiAlPD4lKQoKIyBVTUwKI2xpYnJhcnkoRmFjdG9NaW5lUikKI2xpYnJhcnkoZmFjdG9leHRyYSkKCiMgRGVzY3JpcHRpdmVzCiNsaWJyYXJ5KHNraW1yKQojbGlicmFyeShzdGFyZ2F6ZXIpCgojIFZpegojbGlicmFyeShwYXRjaHdvcmspCmBgYAoKIyBEYXRhIHByZXBlcmF0aW9uCgoKCmBgYHtyfQp0YmxfYXV0aG9yX2R5biA8LSByZWFkUkRTKCcuLi8uLi90ZW1wL3RibF9hdXRob3JfZHluX2FsbC5yZHMnKQoKIyBkZWFsIHdpdGggTkFzCnRibF9hdXRob3JfZHluICU8PiUKICByZXBsYWNlX25hKGxpc3QoY2VudF9kZ3IgPSAwLCBjZW50X2Rncl9pbmQgPSAwLCBmaWVsZF9vZl9zdHVkeV9pZCA9IDAsIGZpZWxkX29mX3N0dWR5X25hbWUgPSAnbm9uZScsIGZpZWxkX24gPSAwLCBkbF9uID0gMCwgZGxfcmVzZWFyY2hlciA9IEZBTFNFKSkKYGBgCgoKIyMgT3RoZXJzCgojIyMgRmllbGQgb2Ygc3R1ZHkKCmBgYHtyfQojIERlZmluZSB0aGUgbnVtYmVyIG9mIGZpZWxkcyB0byBiZSBpbmNsdWRlZApuX2ZvcyA8LSA1MAoKIyBFeHRyYWN0IEZvcwpmb3NfbWFpbiA8LSB0YmxfYXV0aG9yX2R5biAlPiUgY291bnQoZmllbGRfb2Zfc3R1ZHlfbmFtZSwgc29ydCA9IFRSVUUpICU+JQogIHNsaWNlKDI6bl9mb3MpCmBgYAoKYGBge3J9CiNVcGRhdGUgYXV0aG9yIGR5bgp0YmxfYXV0aG9yX2R5biAlPD4lCiAgbXV0YXRlKGZpZWxkX29mX3N0dWR5X25hbWUgPSBpZmVsc2UoZmllbGRfb2Zfc3R1ZHlfbmFtZSAlaW4lIChmb3NfbWFpbiAlPiUgcHVsbChmaWVsZF9vZl9zdHVkeV9uYW1lKSksIGZpZWxkX29mX3N0dWR5X25hbWUsICdvdGhlcnMnKSAlPiUgZmFjdG9yKCkpCgojIEdFdCBtYWluIEZvUwphdXRob3JfbWFpbl9mb3MgPC0gdGJsX2F1dGhvcl9keW4gJT4lCiAgY291bnQoYXV0aG9yX2lkLCBmaWVsZF9vZl9zdHVkeV9uYW1lLCBzb3J0ID0gVFJVRSkgJT4lCiAgZ3JvdXBfYnkoYXV0aG9yX2lkKSAlPiUKICAgIG11dGF0ZShuID0gaWZlbHNlKGZpZWxkX29mX3N0dWR5X25hbWUgPT0gJ290aGVycycsIDAsIG4pKSAlPiUKICAgIGFycmFuZ2UoYXV0aG9yX2lkLCBkZXNjKG4pKSAlPiUKICAgIHNsaWNlKDE6MSkgJT4lCiAgdW5ncm91cCgpCgojIEpvaW4gd2l0aCBhdXRob3Igc3RhdGljCnRibF9hdXRob3Jfc3RhdCAlPD4lIAogIGxlZnRfam9pbihhdXRob3JfbWFpbl9mb3MgJT4lIHNlbGVjdChhdXRob3JfaWQsIGZpZWxkX29mX3N0dWR5X25hbWUpLCBieSA9ICdhdXRob3JfaWQnKSAlPiUKICByZXBsYWNlX25hKGxpc3QoZmllbGRfb2Zfc3R1ZHlfbmFtZSA9ICdvdGhlcnMnKSkgCmBgYAoKCgojIFJlZ3Jlc3Npb24gZGF0YSBwcmVwCgpgYGB7cn0KIyBDcmVhdGUgbWFpbiBkYXRhIHdpdGggcmVzdHJpY3Rpb25zIG9uIHR5cGUKZGF0YSA8LSB0YmxfYXV0aG9yX2R5biAlPiUgCiAgaW5uZXJfam9pbih0YmxfYXV0aG9yX3N0YXQgJT4lIHNlbGVjdChhdXRob3JfaWQsIGdlbmRlciksIGJ5ID0gJ2F1dGhvcl9pZCcpICU+JQogIGRpc3RpbmN0KGF1dGhvcl9pZCwgeWVhciwgLmtlZXBfYWxsID0gVFJVRSkKYGBgCgpgYGB7cn0KIyBDcmVhdGUgc29tZSBpbmRlcGVuZGVudCB2YXJpYWJsZXMKZGF0YSAlPD4lCiAgZ3JvdXBfYnkoYXV0aG9yX2lkKSAlPiUKICBtdXRhdGUoc2VuaW9yaXR5ID0geWVhciAtIG1pbih5ZWFyLCBuYS5ybSA9IFRSVUUpICsgMSwKICAgICAgICAgY2l0X24gPSBjaXRfbWVhbiAqIHBhcGVyX24sCiAgICAgICAgIGNpdF9uX2N1bSA9IGNpdF9uICU+JSBjdW1zdW0oKSkgJT4lCiAgIyBJbnRyb2R1Y2UgTGFncwogIG11dGF0ZShjaXRfbl9jdW0gPSBjaXRfbl9jdW0gJT4lIGxhZygxKSwKICAgICAgICAgY2VudF9kZ3IgPSBjZW50X2RnciAlPiUgbGFnKDEpLAogICAgICAgICBjZW50X2Rncl9pbmQgPSBjZW50X2RnciAlPiUgbGFnKDEpLAogICAgICAgICBkbF9yZXNlYXJjaGVyID0gZGxfcmVzZWFyY2hlciAlPiUgbGFnKDEpLAogICAgICAgICBmaWVsZF9vZl9zdHVkeV9uYW1lID0gZmllbGRfb2Zfc3R1ZHlfbmFtZSAlPiUgbGFnKDEpKSAlPiUKICB1bmdyb3VwKCkgCmBgYAoKYGBge3J9CiMgQ3JlYXRlIERWCmRhdGEgJTw+JQogICMgQ2l0YXRpb24gcmFuawogIGdyb3VwX2J5KHllYXIpICU+JQogIG11dGF0ZShjaXRhdGlvbl9yYW5rX3NpbmdsZSA9IGNpdF9tZWFuICU+JSBwZXJjZW50X3JhbmsoKSkgJT4lCiAgdW5ncm91cCgpICU+JQogICMgUm9sbGluZyBtZWFuCiAgYXJyYW5nZShhdXRob3JfaWQsIHllYXIpICU+JQogIGdyb3VwX2J5KGF1dGhvcl9pZCkgJT4lCiAgbXV0YXRlKGNpdGF0aW9uX3JhbmsgPSBjaXRhdGlvbl9yYW5rX3NpbmdsZSAlPiUgc2xpZGVyOjpzbGlkZV9kYmwofm1lYW4oLngpLCAuYmVmb3JlID0gMikpICU+JQogIHVuZ3JvdXAoKQpgYGAKCmBgYHtyfQojIFNvbWUgbGFzdCBwcmVwcm9jZXNzaW5nCmRhdGEgJTw+JQogIGZpbHRlcih5ZWFyID49IDIwMDApICU+JSAgICAgICAgICAKICBncm91cF9ieShhdXRob3JfaWQpICU+JQogIG11dGF0ZSh0aW1lID0gMTpuKCkpICU+JQogIHVuZ3JvdXAoKSAlPiUKICBtdXRhdGUoeWVhciA9IHllYXIgJT4lIGZhY3RvcigpKSAlPiUKICBkcm9wX25hKCkgJT4lCiAgIyBuaWNlciBvcmRlcgogIHJlbG9jYXRlKGF1dGhvcl9pZCwgYXV0aG9yX3R5cGUsIGdlbmRlciwgeWVhciwgdGltZSwgc3dpdGNoLCB0cmFuc2l0ZWQsIGNpdGF0aW9uX3JhbmssIGNpdF9uX2N1bSwgcGFwZXJfbikgJT4lCiAgYXJyYW5nZShhdXRob3JfaWQsIHRpbWUpCmBgYAoKCmBgYHtyfQpkYXRhICU+JSBzYXZlUkRTKCcuLi8uLi90ZW1wL3JlZ19kYXRhLnJkcycpCmBgYAoKCgojIFN1dml2YWwgQW5hbHlzaXMgCgpgYGB7cn0KbGlicmFyeShzdXJ2aXZhbCkKbGlicmFyeShzdXJ2bWluZXIpCmxpYnJhcnkoZ2dmb3J0aWZ5KQpgYGAKCiMjIFBSZXBlcmF0aW9uIAoKYGBge3J9CiMjIyBQcmVwYXJlIGZvciByZWdyZXNzaW9uCmRhdGFfc3VydiA8LSBkYXRhICU+JSAKICAjIENhbHNvIGxhZyBjaXRhdGlvbiByYW5rCiAgI2dyb3VwX2J5KGF1dGhvcl9pZCkgJT4lCiAgI211dGF0ZShjaXRhdGlvbl9yYW5rID0gY2l0YXRpb25fcmFuayAlPiUgbGFnKDEpKSAlPiUKICAjdW5ncm91cCgpICU+JQogICMgb3RoZXIgdmFyaWFibGVzIHRvIHRyeQogIG11dGF0ZShzdGFyID0gY2l0YXRpb25fcmFuayA+PSAwLjkpCmBgYAoKYGBge3J9CiMgU3VyZiBvYmplY3QKc3Vydl9vYmplY3QgPC0gU3Vydih0aW1lID0gZGF0YV9zdXJ2JHRpbWUsIGV2ZW50ID0gZGF0YV9zdXJ2JHRyYW5zaXRlZCkKYGBgCgoKIyMgS2FwbGFuLU1laWVyIE1ldGhvZCBhbmQgTG9nIFJhbmsgVGVzdAoKYGBge3J9CmZpdF9rbTAgPC0gc3VydmZpdChzdXJ2X29iamVjdCB+IDEsIAogICAgICAgICAgICAgICAgICAgZGF0YSA9IGRhdGFfc3VydikKZml0X2ttMSA8LSBzdXJ2Zml0KHN1cnZfb2JqZWN0IH4gc3RhciwgCiAgICAgICAgICAgICAgICAgICBkYXRhID0gZGF0YV9zdXJ2KQpmaXRfa20yIDwtIHN1cnZmaXQoc3Vydl9vYmplY3QgfiBkbF9yZXNlYXJjaGVyLCAKICAgICAgICAgICAgICAgICAgIGRhdGEgPSBkYXRhX3N1cnYpCmZpdF9rbTMgPC0gc3VydmZpdChzdXJ2X29iamVjdCB+IGdlbmRlciwKICAgICAgICAgICAgICAgICAgIGRhdGEgPSBkYXRhX3N1cnYpCmBgYAoKYGBge3J9CnAxIDwtIGZpdF9rbTAgJT4lIGF1dG9wbG90KCkgKyBsYWJzKHRpdGxlPSAnS006IGJhc2VsaW5lJykKcDIgPC0gZml0X2ttMSAlPiUgYXV0b3Bsb3QoKSArIGxhYnModGl0bGU9ICdLTTogU3RhciBjaXRhdGlvbnMnKQpwMyA8LSBmaXRfa20yICU+JSBhdXRvcGxvdCgpICsgbGFicyh0aXRsZT0gJ0tNOiBETCByZXNlYXJjaGVyJykKcDQgPC0gZml0X2ttMyAlPiUgYXV0b3Bsb3QoKSArIGxhYnModGl0bGU9ICdLTTogR2VuZGVyJykKCiMocDEgKyBwMikgLyAocDMgKyBwNCkgKyAgcGxvdF9sYXlvdXQoZ3VpZGVzID0gImNvbGxlY3QiKSAmIHRoZW1lKGxlZ2VuZC5wb3NpdGlvbiA9ICdib3R0b20nKSAmIGxhYnMoeCA9ICdUaW1lJywgeSA9ICdTdXJ2aXZhbCBQcm9iYWJpbGl0eScpCmBgYAoKIyMgQ294IFByb3BvcnRpb25hbCBIYXphcmQgTW9kZWwKCmBgYHtyfQojIyMgRmlyIENveCBwcm9wb3J0aW9uYWwgaGF6YXJkIG1vZGVsCgojQmFzZWxpbmUKZml0X2NveDAgPC0gY294cGgoc3Vydl9vYmplY3QgfiBzZW5pb3JpdHkgKyBnZW5kZXIgKyBmaWVsZF9vZl9zdHVkeV9uYW1lICsgeWVhciwKICAgICAgICAgICAgICAgICAgZGF0YSA9IGRhdGFfc3VydikKCmZpdF9jb3gxIDwtIGNveHBoKHN1cnZfb2JqZWN0IH4gc2VuaW9yaXR5ICsgZ2VuZGVyICsgZmllbGRfb2Zfc3R1ZHlfbmFtZSAgKyB5ZWFyICsgZGxfcmVzZWFyY2hlciwKICAgICAgICAgICAgICAgICAgZGF0YSA9IGRhdGFfc3VydikKCmZpdF9jb3gyIDwtIGNveHBoKHN1cnZfb2JqZWN0IH4gc2VuaW9yaXR5ICsgZ2VuZGVyICsgZmllbGRfb2Zfc3R1ZHlfbmFtZSArIHllYXIgKyBjZW50X2RnciArIGNlbnRfZGdyX2luZCwKICAgICAgICAgICAgICAgICAgZGF0YSA9IGRhdGFfc3VydikKCmZpdF9jb3gzIDwtIGNveHBoKHN1cnZfb2JqZWN0IH4gc2VuaW9yaXR5ICsgZ2VuZGVyICsgZmllbGRfb2Zfc3R1ZHlfbmFtZSArIHllYXIgKyBwYXBlcl9uICsgY2l0YXRpb25fcmFuayArIGxvZyhjaXRfbl9jdW0gKyAxKSAsCiAgICAgICAgICAgICAgICAgIGRhdGEgPSBkYXRhX3N1cnYpCgpmaXRfY294NCA8LSBjb3hwaChzdXJ2X29iamVjdCB+IHNlbmlvcml0eSArIGdlbmRlciArIGZpZWxkX29mX3N0dWR5X25hbWUgKyB5ZWFyICsgZGxfcmVzZWFyY2hlciArIGNlbnRfZGdyICsgY2VudF9kZ3JfaW5kICsgIHBhcGVyX24gKyBjaXRhdGlvbl9yYW5rICsgbG9nKGNpdF9uX2N1bSArIDEpLAogICAgICAgICAgICAgICAgICBkYXRhID0gZGF0YV9zdXJ2KQpgYGAKCgpgYGB7cn0Kc3RhcmdhemVyKGZpdF9jb3gwLCBmaXRfY294MSwgZml0X2NveDIsIGZpdF9jb3gzLCBmaXRfY294NCwgdHlwZSA9ICdsYXRleCcsIAogICAgICAgICAgb21pdCA9IGMoICdmaWVsZF9vZl9zdHVkeV9uYW1lJywgJ3llYXInLCAnQ29uc3RhbnQnKSkKYGBgCgpgYGB7cn0Kc3RhcmdhemVyKGZpdF9jb3gwLCBmaXRfY294MSwgZml0X2NveDIsIGZpdF9jb3gzLCBmaXRfY294NCwgdHlwZSA9ICd0ZXh0JywKICAgICAgICAgIG9taXQgPSBjKCAnZmllbGRfb2Zfc3R1ZHlfbmFtZScsICd5ZWFyJywgJ0NvbnN0YW50JykpCmBgYAoKYGBge3J9CmZpdF9jb3g0ICU+JSBnZ2ZvcmVzdChkYXRhID0gZGF0YV9zdXJ2KQpgYGAKCgoKIyBQcm9wZW5zaXR5IFNjb3JlIG1hdGNoaW5nCgpgYGB7cn0KbGlicmFyeShNYXRjaEl0KQpgYGAKCmBgYHtyfQpzZXQuc2VlZCgxMzM3KQptYXRjaF9vdXQ8LSAgdGJsX2F1dGhvcl9zdGF0ICU+JSAKICAjIFByZXNlbGVjdGlvbgogIHNlbGVjdChhdXRob3JfaWQgLCBhdXRob3JfdHlwZSwgcGFwZXJfbWVhbiwgY2l0X21lYW4sIHllYXJfbiwgeWVhcl9lbmQsIGdlbmRlciwgZmllbGRfb2Zfc3R1ZHlfbmFtZSkgJT4lCiAgbXV0YXRlKGF1dGhvcl90eXBlID0gKGF1dGhvcl90eXBlICU+JSBmYWN0b3IoKSAlPiUgYXMubnVtZXJpYygpKSAtMSApICU+JQogICMgTWF0Y2hpbmcKICBtYXRjaGl0KGF1dGhvcl90eXBlIH4gcGFwZXJfbWVhbiArIGNpdF9tZWFuICsgeWVhcl9lbmQgKyBnZW5kZXIgKyBmaWVsZF9vZl9zdHVkeV9uYW1lLCBleGFjdCA9ICd5ZWFyX24nLAogICAgICAgICAgICAgICAgICAgICAgZGF0YSA9IC4sIHZlcmJvc2UgPSBGQUxTRSwgbWV0aG9kID0gIm5lYXJlc3QiLCByYXRpbyA9IDEpICMgT1IgbWV0aG9kICAiZ2VuZXRpYyIgLi4uIHRha2VzIGZvcmV2ZXIuLi4uLgpgYGAKCmBgYHtyfQojIE1hdGNoIHRhYmxlIGZvciB1c2UgbGF0ZXJvbgptYXRjaF9kYXRhIDwtIG1hdGNoX291dCAlPiUgCiAgbWF0Y2guZGF0YSgpICU+JSAKICBhc190aWJibGUoKSAlPiUgCiAgc2VsZWN0KGF1dGhvcl9pZCwgZGlzdGFuY2UsIHdlaWdodHMpCmBgYAoKYGBge3J9Cm1hdGNoZWRfcGFpcnMgIDwtIGJpbmRfY29scyggdGJsX2F1dGhvcl9zdGF0W3Jvdy5uYW1lcyhtYXRjaF9vdXQkbWF0Y2gubWF0cml4KSwiYXV0aG9yX2lkIl0gLCB0YmxfYXV0aG9yX3N0YXRbbWF0Y2hfb3V0JG1hdGNoLm1hdHJpeCwiYXV0aG9yX2lkIl0gKSAlPiUKICByZW5hbWUob3JpZ19hdXRob3JfaWQgPSBgYXV0aG9yX2lkLi4uMWAsCiAgICAgICAgIGF1dGhvcl9pZCA9IGBhdXRob3JfaWQuLi4yYCkgCmBgYAoKYGBge3J9CiMgR2V0IHRoZSB0aW1lIHdoZXJlIHRoZSBtYXRjaGVkIHN3aXRjaGVyIHRyYW5zaXRzCm1hdGNoZWRfcGFpcnMgJTw+JQogIGxlZnRfam9pbihkYXRhICU+JSBmaWx0ZXIoc3dpdGNoID09IFRSVUUpICU+JSBzZWxlY3QoYXV0aG9yX2lkLCB0aW1lKSAlPiUgZGlzdGluY3QoYXV0aG9yX2lkLCAua2VlcF9hbGwgPSBUUlVFKSwgYnkgPSBjKCdvcmlnX2F1dGhvcl9pZCcgPSAnYXV0aG9yX2lkJykpICU+JQogIG11dGF0ZShzd2l0Y2ggPSBUUlVFKSAlPiUKICBkcm9wX25hKCkgCmBgYAoKCiMgRGlmZi1pbi1EaWZmCgojIyBQcmVwcm9jZXNzaW5nCmBgYHtyfQojIEZpbHRlciBvbmx5IE5OIG1hdGNoZWQgYXV0aG9yIHBhaXJzCmRhdGFfZGlkIDwtIGRhdGEgJT4lCiAgc2VtaV9qb2luKG1hdGNoX2RhdGEsIGJ5ID0gJ2F1dGhvcl9pZCcpCgojIFVwZGF0ZSB0aGUgY29ycmVzcG9uZGluZyB0cmFuc2l0aW9uIHRpbWUgb2YgdW5pdmVyc2l0eSBieSB0aGVpciBtYXRjaGVkIHN3aXRjaGVyCmRhdGFfZGlkICU8PiUKICByb3dzX3VwZGF0ZShtYXRjaGVkX3BhaXJzICU+JSBzZWxlY3QoLW9yaWdfYXV0aG9yX2lkKSwgYnkgPSBjKCdhdXRob3JfaWQnLCAndGltZScpKQoKIyBVcGRhdGUgVHJhbnNpdGVkCmRhdGFfZGlkICU8PiUKICBtdXRhdGUodHJhbnNpdGVkID0gTkEpICU+JQogIGdyb3VwX2J5KGF1dGhvcl9pZCkgJT4lCiAgbXV0YXRlKHRyYW5zaXRlZCA9IGlmZWxzZShsYWcoc3dpdGNoLCAxKSA9PSBUUlVFLCBUUlVFLCB0cmFuc2l0ZWQpKSAlPiUKICBmaWxsKHRyYW5zaXRlZCwgLmRpcmVjdGlvbiA9ICdkb3duJykgJT4lCiAgcmVwbGFjZV9uYShsaXN0KCd0cmFuc2l0ZWQnID0gRkFMU0UpKSAlPiUKICB1bmdyb3VwKCkKYGBgCgpgYGB7cn0KIyBTb21lIGV4dHJhIHZhcmlhYmxlcwpkYXRhX2RpZCAlPD4lCiAgZ3JvdXBfYnkoYXV0aG9yX2lkKSAlPiUKICBtdXRhdGUoc3dpdGNoZXIgPSBhdXRob3JfdHlwZSA9PSAnc3dpdGNoZXInLAogICAgICAgICB0cmFuc2l0ZWRfdCA9IGlmZWxzZSh0cmFuc2l0ZWQgPT0gVFJVRSwgMSwgMCkpICU+JQogIG11dGF0ZSh0cmFuc2l0ZWRfdCA9IHRyYW5zaXRlZF90ICU+JWN1bXN1bSgpKSAlPiUKICB1bmdyb3VwKCkKYGBgCgpgYGB7cn0KIyBOaWNlciBvcmRlcmluZwpkYXRhX2RpZCAlPD4lCiAgcmVsb2NhdGUoYXV0aG9yX2lkLCBhdXRob3JfdHlwZSwgZ2VuZGVyLCB5ZWFyLCB0aW1lLCBzd2l0Y2gsIHRyYW5zaXRlZCwgdHJhbnNpdGVkX3QsIGNpdGF0aW9uX3JhbmssIGNpdF9uX2N1bSwgcGFwZXJfbikgJT4lCiAgYXJyYW5nZShhdXRob3JfaWQsIHRpbWUpCmBgYAoKYGBge3J9CiMgRm9yIHRoZSBpbnRlcmFjdGlvbiBwbG90IGNvZGUgbG9naWNhbCB0byBudW1lcmljCiMgZGF0YV9kaWQgJTw+JSAgbXV0YXRlKHN3aXRjaGVyID0gc3dpdGNoZXIgJT4lIGFzLm51bWVyaWMoKSwgdHJhbnNpdGVkID0gdHJhbnNpdGVkICU+JSBhcy5udW1lcmljKCkpCmBgYAoKYGBge3J9CmRhdGFfZGlkICU+JSBzYXZlUkRTKCcuLi8uLi90ZW1wL3JlZ19kYXRhX2RpZC5yZHMnKQpgYGAKCiMjIE1vZGVscwoKYGBge3J9CiMgZml0X2RpZF8wIDwtIGxtKGNpdGF0aW9uX3JhbmsgfiBzd2l0Y2hlciArIGZpZWxkX29mX3N0dWR5X25hbWUsIGRhdGEgPSBkYXRhX2RpZCkKCmZpdF9kaWRfMCA8LSBsbShjaXRhdGlvbl9yYW5rIH4gKHN3aXRjaGVyICsgdHJhbnNpdGVkKV4yICsgZmllbGRfb2Zfc3R1ZHlfbmFtZSArIHllYXIgKyBzZW5pb3JpdHkgKyBnZW5kZXIgKyBmaWVsZF9vZl9zdHVkeV9uYW1lCiAgICAgICAgICAgICAgICAsIGRhdGEgPSBkYXRhX2RpZCkKZml0X2RpZF8xIDwtIGxtKGNpdGF0aW9uX3JhbmsgfiAoc3dpdGNoZXIgKyB0cmFuc2l0ZWQpXjIgKyBmaWVsZF9vZl9zdHVkeV9uYW1lICsgeWVhciArIHNlbmlvcml0eSArIGdlbmRlciArIGZpZWxkX29mX3N0dWR5X25hbWUgKyBjZW50X2RnciArIGNlbnRfZGdyX2luZAogICAgICAgICAgICAgICAgLCBkYXRhID0gZGF0YV9kaWQpCmZpdF9kaWRfMiA8LSBsbShjaXRhdGlvbl9yYW5rIH4gKHN3aXRjaGVyICsgdHJhbnNpdGVkKV4yICsgZmllbGRfb2Zfc3R1ZHlfbmFtZSArIHllYXIgKyBzZW5pb3JpdHkgKyBnZW5kZXIgKyBmaWVsZF9vZl9zdHVkeV9uYW1lICsgKHN3aXRjaGVyICsgdHJhbnNpdGVkX3QpXjIKICAgICAgICAgICAgICAgICwgZGF0YSA9IGRhdGFfZGlkKQpmaXRfZGlkXzMgPC0gbG0oY2l0YXRpb25fcmFuayB+IChzd2l0Y2hlciArIHRyYW5zaXRlZCleMiArIGZpZWxkX29mX3N0dWR5X25hbWUgKyB5ZWFyICsgc2VuaW9yaXR5ICsgZ2VuZGVyICsgZmllbGRfb2Zfc3R1ZHlfbmFtZSArIChzd2l0Y2hlciArIHRyYW5zaXRlZF90KV4yICsgY2VudF9kZ3IgKyBjZW50X2Rncl9pbmQgCiAgICAgICAgICAgICAgICAsIGRhdGEgPSBkYXRhX2RpZCkKCiMgKyBwYXBlcl9uID8KYGBgCgpgYGB7cn0Kc3RhcmdhemVyKGZpdF9kaWRfMCwgZml0X2RpZF8xLCBmaXRfZGlkXzIsIGZpdF9kaWRfMywgdHlwZSA9ICd0ZXh0JywKICAgICAgICAgIG9taXQgPSBjKCdmaWVsZF9vZl9zdHVkeV9uYW1lJywgJ3llYXInLCAnQ29uc3RhbnQnKSkKYGBgCgpgYGB7cn0Kc3RhcmdhemVyKGZpdF9kaWRfMCwgZml0X2RpZF8xLCBmaXRfZGlkXzIsIGZpdF9kaWRfMywgdHlwZSA9ICd0ZXh0JywKICAgICAgICAgIG9taXQgPSBjKCdmaWVsZF9vZl9zdHVkeV9uYW1lJywgJ3llYXInLCAnQ29uc3RhbnQnKSkKYGBgCgpgYGB7cn0Kc3RhcmdhemVyKGZpdF9kaWRfMCwgZml0X2RpZF8xLCBmaXRfZGlkXzIsIGZpdF9kaWRfMywgdHlwZSA9ICdsYXRleCcsCiAgICAgICAgICBvbWl0ID0gYygnZmllbGRfb2Zfc3R1ZHlfbmFtZScsICd5ZWFyJywgJ0NvbnN0YW50JykpCmBgYAoKCiMjIyBUZW1wbGF0ZSBuZXcgcGxvdHRpbmcgbW9kZWwKCmBgYHtyfQojbGlicmFyeShpbnRlcnBsb3QpCiNmaXRfZGlkXzIgJT4lIGludGVycGxvdCh2YXIxID0ic3dpdGNoZXIiLCB2YXIyID0gInRyYW5zaXRlZF90IiwgaGlzdCA9IFRSVUUpIApgYGAKCmBgYHtyfQpsaWJyYXJ5KGludGVyYWN0aW9ucykKZml0X2RpZF8yICU+JSBpbnRlcmFjdF9wbG90KHByZWQgPSB0cmFuc2l0ZWRfdCwgbW9keCA9IHN3aXRjaGVyLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgaW50ZXJ2YWwgPSBUUlVFKSArCiAgdGhlbWUobGVnZW5kLnBvc2l0aW9uID0gJ2JvdHRvbScpCgpgYGAKCmBgYHtyfQpnZ3NhdmUoJy4uLy4uL291dHB1dC9maWdfaW50ZXJhY3Rpb25fMS5wbmcnLCB3aWR0aCA9IDEwLCBoZWlnaHQgPSA3LjUsIHVuaXRzID0gJ2NtJykKYGBgCgoKYGBge3J9CmxpYnJhcnkoaW50ZXJhY3Rpb25zKQpmaXRfZGlkXzIgJT4lIGludGVyYWN0X3Bsb3QocHJlZCA9IHRyYW5zaXRlZF90LCBtb2R4ID0gc3dpdGNoZXIsCiAgICAgICAgICAgICAgICAgICAgICAgICAgICBpbnRlcnZhbCA9IFRSVUUsIGxpbmVhcml0eS5jaGVjayA9IFRSVUUpCmBgYAoKCgoKCgoKCg==</div>

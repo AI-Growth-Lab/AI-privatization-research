@@ -44,9 +44,10 @@ library(magrittr) # For extra-piping operators (eg. %<>%)
 ## Read data
 
 ```{r}
-data <- read_csv('../../input/works.csv')
+data <- read_csv('../../input/works.csv') %>%
+  mutate(id = id %>% as.character()) %>%
+  select(-title, -issn)
 ```
-
 
 ```{r}
 data %>% glimpse()
@@ -133,12 +134,12 @@ concepts_1 <- concepts %>%
 
 ```{r}
 concepts %>% write_rds('../../temp/paper_concepts.rds')
-rm(concepts)
 ```
 
 
 ```{r}
-rm(concept_drop, concepts_main, n_start, n_concepts)
+rm(concept_drop, concepts_main, n_start, n_concepts,
+   concepts)
 ```
 
 
@@ -146,21 +147,37 @@ rm(concept_drop, concepts_main, n_start, n_concepts)
  concepts_1 %<>%
   mutate(list_aid = list_aid %>% str_split('\n')) %>% 
   unnest(list_aid) %>%
-  rename(AID = list_aid) %>%
+  rename(AID = list_aid) 
+```
+
+```{r}
+concepts_1 %<>%
   count(AID, year, concepts) 
+```
+
+```{r}
+concepts_1 %<>%
+  group_by(AID, year) %>% 
+  slice_max(order_by = n, n = 1, with_ties = FALSE) %>% 
+  ungroup() %>%
+  select(-n)
 ```
 
 
 ```{r}
-data.table::setDT(concepts_1)[, .SD[which.max(n)], by=list(AID, year)] %>%
-  data.table::setDF() %>%
-  select(AID, year, concepts) %>%
-  arrange(AID, year) %>%
-  distinct(AID, year, .keep_all = TRUE)
-
-## Way faster than dplyr alternative
-# group_by(AID, year) %>% slice_max(order_by = n, n = 1) %>% ungroup()
+## Faster but not working data table alternative
+#data.table::setDT(concepts_1)[, .SD[which.max(n)], by=list(AID, year)] %>%
+#  data.table::setDF() %>%
+#  as_tibble() %>%
+#  select(AID, year, concepts) %>%
+#  arrange(AID, year) %>%
+#  distinct(AID, year, .keep_all = TRUE)
 ```
+
+```{r}
+concepts_1 %>% head()
+```
+
 
 ```{r}
 concepts_1 %>% write_rds('../../temp/author_concepts.rds')
@@ -206,20 +223,17 @@ gc() #free up memrory and report the memory usage.
 ## Load data
 
 ```{r}
-data <- read_csv('../../input/variables.csv') 
-```
-
-```{r}
-# Unselect not needed variables
-data %<>% 
+data <- read_csv('../../input/variables.csv') %>% 
   select(-seniority, -concepts, -gender) %>%
   mutate(AID = AID %>% as.character()) 
 ```
 
-```{r}
-data %>% glimpse()
-```
+## first preprocess
 
+```{r}
+data %<>% 
+  mutate(aff_id = aff_id %>% str_remove('https://openalex.org/'))
+```
 
 ## Join with othr data
 
@@ -237,11 +251,50 @@ data %<>% left_join(read_rds('../../temp/author_concepts.rds') %>%
                     by = c('AID', 'year'))
 ```
 
+## Static author
+
 ```{r}
-# remove potential duplicates (dont think so, but still...)
-data %<>% distinct(AID, year, .keep_all = TRUE)
+data_static <- data %>%
+  drop_na(aff_type) %>%
+  mutate(aff_uni = aff_type == 'education') %>%
+  group_by(AID) %>%
+  summarise(year_n = n(),
+            year_min = year %>% min(na.rm = TRUE),
+            year_max = year %>% max(na.rm = TRUE),
+            aff_uni_all = aff_uni %>% min(na.rm = TRUE),
+            aff_ind_all = aff_uni %>% max(na.rm = TRUE),
+            switcher = switcher %>% max(na.rm = TRUE)
+            ) %>%
+  ungroup() %>%
+  mutate(year_range = year_max - year_min + 1,
+         aff_ind_all = 1- aff_ind_all,
+         pct_obs = year_range / year_n)
 ```
 
+Now define the selection criteria for the sample
+
+```{r}
+data_static %<>%
+  filter(
+    year_max >= 2015, # latest year observed
+    year_n >= 4, # Number of years observed
+    year_range >= 4, # Number of years observed
+    pct_obs >= 0.5, # observed at least half of the time
+    aff_ind_all == 0 # exclude industry only
+    ) 
+```
+
+```{r}
+data_static %>% write_rds('../../temp/data_author_static.rds')
+```
+
+```{r}
+data %<>% semi_join(data_static, by = 'AID')
+```
+
+```{r}
+rm(data_static)
+```
 
 ## Make complete panel
 
@@ -249,27 +302,79 @@ data %<>% distinct(AID, year, .keep_all = TRUE)
 data %<>%   
   group_by(AID) %>%
     complete(year = full_seq(min(year):max(year), 1)) %>%
-    fill(aff_id, aff_type, .direction = "downup") %>%
+    arrange(year) %>%
+    fill(aff_id, aff_type, transited_t, switcher, seniority_all, .direction = "downup") %>%
   ungroup() 
+# TODO: Figure out what to alternatively do with seniority_all. Up to now its not really correct
 ```
 
 ## Replace NAs
   
 ```{r}
 data %<>%
-  replace_na(list(transited_t = -1,
+  replace_na(list(DL = 0, transition = 0, transited_t = 0, switcher = 0,
+                  deg_cen = 0, deg_cen_comp = 0,
                   paper_n = 0, citation_n = 0, oa_mean = 0, novelty_mean = 0,
                   concepts = 'unknown'))
 ```
 
+```{r}
+#in-between save
+data %>% write_rds('../../temp/data_reg_temp.rds')
+```
+
+## Field weighted indicators
+
+```{r}
+data %<>%
+  group_by(concepts, year) %>%
+  mutate(citation_fw = citation_n %>% percent_rank(),
+         novelty_fw = novelty_mean %>% percent_rank()) %>%
+  ungroup()
+```
+
+
+## Institutions
+
+```{r}
+data_institutions <- data %>%
+  group_by(aff_id, year) %>%
+  summarise(author_n = n_distinct(AID),
+            aff_paper_n = n(),
+            aff_citation_fw = citation_fw %>% mean(),
+            aff_novelty_fw = novelty_fw %>% mean()
+            ) %>%
+  ungroup() %>%
+  mutate(across(everything(), ~replace(.x, is.nan(.x), 0)))
+```
+
+```{r}
+data_institutions %>% write_rds('../../temp/data_institutions.rds')
+```
+
+```{r}
+data %<>% left_join(data_institutions %>% select(aff_id, year, aff_citation_fw), by = c('aff_id', 'year'))
+```
+
+```{r}
+rm(data_institutions)
+```
+
+
 ## Rolling mean
 
 ```{r}
+data %<>% arrange(AID, year)
+```
+
+
+```{r}
+## NOTE: Not done now
 data %>%
-  arrange(AID, year) %>%
   group_by(AID) %>%
+  arrange(year) %>%
   mutate(
-    across(c(paper_n, citation_n, oa_mean, novelty_mean), ~ zoo::rollmean(.x, 3, align = "left"))
+    across(c(paper_n, citation_n, oa_mean, novelty_mean, deg_cen, deg_cen_comp, novelty_fw, citation_fw), ~ zoo::rollmean(.x, 3, align = "left"))
   )
 ```
 
@@ -277,10 +382,9 @@ data %>%
 
 ```{r}
 data %>%
-  arrange(AID, year) %>%
   group_by(AID) %>%
   mutate(
-    across(c(paper_n, citation_n, oa_mean, novelty_mean), ~ lag(.x, 1))
+    across(c(paper_n, citation_n, oa_mean, novelty_mean, deg_cen, deg_cen_comp, novelty_fw, citation_fw), ~ lag(.x, 1))
   )
 ```
 
@@ -296,11 +400,11 @@ data %>% write_rds('../../temp/data_reg.rds')
 
 TODO preprocessing:
 * X join citation & novelty var
-* Make panel over all years
-* replace NAs
-* lag variables
-* Pre-filtering (or maybe better when loading for regrerssion)
-* Add institutional quelity indicators.
+* X Make panel over all years
+* X replace NAs
+* X lag variables
+* X Pre-filtering (or maybe better when loading for regrerssion)
+* X Add institutional quelity indicators.
 
 TODO others
 * Do a static author collection
