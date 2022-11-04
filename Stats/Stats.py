@@ -264,7 +264,22 @@ for year in tqdm.tqdm(period):
 df_all_edu_share = pd.DataFrame()
 for col in keywords:
     df_all_edu_share[col] = df_all_edu[col] / df_all['Total']
-    
+
+#%% Evolution of solo author
+
+df_solo = pd.DataFrame(np.zeros(shape = (len( list(period)),2)), index = list(period),columns = ["n","n_solo"])
+df_solo
+
+for year in tqdm.tqdm(period):
+    docs = collection_ai.find({"publication_year":year})
+    for doc in tqdm.tqdm(docs):
+        df_solo.at[year,"n"] += 1
+        if len(doc["authorships"]) == 1:
+            df_solo.at[year,"n_solo"] += 1
+df_solo["n_solo"] =  df_solo["n_solo"]/df_solo["n"]       
+df_solo.to_csv("Data/Share_solo.csv", index=False)
+             
+
 #%% Keywords that cooccur the most with "deep learning"
 
 most_cooc_dl = defaultdict(int)

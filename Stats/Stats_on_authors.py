@@ -24,7 +24,7 @@ i = 0
 for doc in tqdm.tqdm(docs):
     for year in period:
         try:
-            unique_tags.append(doc[str(year)])
+            unique_tags.append(doc[str(year)]["aff_type"])
         except:
             continue
     i += 1
@@ -47,8 +47,8 @@ for year in range(2002,2021):
     query = {str(i):{"$exists":1,"$ne":None} for i in context }
     docs = collection_ai_authors.find(query)
     for doc in tqdm.tqdm(docs):
-        if doc[str(year-1)] == doc[str(year-2)] and doc[str(year-1)] != doc[str(year)] and doc[str(year)] == doc[str(year+1)]:
-            transition_name = doc[str(year-1)]  + "_" + doc[str(year)]
+        if doc[str(year-1)]["aff_type"] == doc[str(year-2)]["aff_type"] and doc[str(year-1)]["aff_type"] != doc[str(year)]["aff_type"] and doc[str(year)]["aff_type"] == doc[str(year+1)]["aff_type"]:
+            transition_name = doc[str(year-1)]["aff_type"]  + "_" + doc[str(year)]["aff_type"]
             transition[year][transition_name] += 1
         else:
             continue
@@ -99,8 +99,8 @@ for year in range(2001,2021):
     query = {str(i):{"$exists":1,"$ne":None} for i in context }
     docs = collection_ai_authors.find(query)
     for doc in tqdm.tqdm(docs):
-        if doc[str(year-1)] != doc[str(year)] and doc[str(year)] == doc[str(year+1)]:
-            transition_name = doc[str(year-1)]  + "_" + doc[str(year)]
+        if doc[str(year-1)]["aff_type"] != doc[str(year)]["aff_type"] and doc[str(year)]["aff_type"] == doc[str(year+1)]["aff_type"]:
+            transition_name = doc[str(year-1)]["aff_type"]  + "_" + doc[str(year)]["aff_type"]
             transition[year][transition_name] += 1
         else:
             continue
@@ -132,8 +132,9 @@ for col in df_transition_all[top_ten].columns:
 df_top_ten_share.drop("Total",axis=1).plot.bar(stacked=True, figsize=(10, 6))
 plt.title("{} t-1".format(collection_ai_name))
 plt.legend(bbox_to_anchor=(1.04, 1), loc="upper left")
-# edu-comp comp-edu
 
+
+# edu-comp comp-edu
 
 df_transition_comp_edu = pd.DataFrame()
 for year in range(2001,2021):
@@ -199,7 +200,7 @@ for doc in tqdm.tqdm(docs):
             continue
     i += 1
     if i % 10000 ==0:
-        unique_inst = list((set(unique_tags)))
+        unique_inst = list((set(unique_inst)))
 unique_inst = list((set(unique_inst)))
 unique_inst = [i for i in unique_inst if i not in [None]]
 
