@@ -42,4 +42,4 @@ def mongo2json(URI,db_name,collection_name, var, id_var, year_var, years = None,
         
 mongo2json(URI = 'mongodb://localhost:27017', db_name = 'openAlex_novelty',
            collection_name = 'concepts', var = 'concepts',id_var = "id_cleaned",
-           year_var = "publication_year",years=range(2000,2022,1), use_ids = True)
+           year_var = "publication_year",years=range(2006,2022,1), use_ids = False)
