@@ -1,10 +1,10 @@
-import gzip
-import shutil
 import re
 import glob
-import pymongo
 import tqdm
 import json
+import gzip
+import shutil
+import pymongo
 from joblib import Parallel, delayed
 
 client = pymongo.MongoClient("mongodb://localhost:27017")

@@ -1,7 +1,7 @@
 # Create csv dataframe of papers
-
 import re
 import tqdm
+import json
 import pymongo
 import pandas as pd
 
@@ -11,13 +11,18 @@ Client = pymongo.MongoClient("mongodb://localhost:27017")
 db = Client["openAlex"]
 collection = db["works_ai_2_False"]
 
-docs = collection.find()
 
 
-columns = ["id", "year", "title", "type", "oa", "cited_by_count", "list_aid", "concepts", "issn"]
+data = []
+for year in tqdm.tqdm(period):
+    with open("Results/lee/concepts/{}.json".format(year),"r") as f:
+      data += json.load(f)
+data = {i["id_cleaned"]:i["concepts_lee"] for i in data}
+
+columns = ["id", "year", "title", "type", "oa", "cited_by_count", "list_aid", "concepts", "issn","novelty_lee"]
 list_of_insertion = []
 
-
+docs = collection.find()
 for doc in tqdm.tqdm(docs):
     year = doc["publication_year"]
     _id = doc["id_cleaned"]
@@ -25,7 +30,11 @@ for doc in tqdm.tqdm(docs):
     _type = doc["type"]
     oa = doc["open_access"]["is_oa"]
     cited_by_count = doc["cited_by_count"]
-    
+    try:
+        novelty_lee = data[_id]["score"]["novelty"]
+    except:
+        novelty_lee = None
+        
     list_aid = []
     for author in doc["authorships"]:
         try:
@@ -47,9 +56,9 @@ for doc in tqdm.tqdm(docs):
         issn = doc["host_venue"]["issn_l"]
     else:
         issn = None
-    list_of_insertion.append([_id, year, title, _type, oa, cited_by_count, list_aid, concepts,issn])
+    list_of_insertion.append([_id, year, title, _type, oa, cited_by_count, list_aid, concepts,issn,novelty_lee])
     
 df=pd.DataFrame(list_of_insertion,columns=columns)
 df.to_csv("Data/works.csv",index=False)
 
-test = set(df["issn"])
+

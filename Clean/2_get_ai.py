@@ -9,11 +9,10 @@ levels = {1:0.3, 2:0.5, 3:0.7, 4:0.8, 5:0.9}
 
 Client = pymongo.MongoClient("mongodb://localhost:27017")
 db = Client["openAlex"]
-collection = db["works_ai_{}_{}".format(comb,tresh)]
+collection = db["works"]
 
 docs = collection.find()
 
-list(db.list_collection_names())
 with open("data/hierarchy_keywords.txt", 'r') as f:
     keywords = f.read().split("\n")[0:-1]
 keywords = [keyword.lower() for keyword in keywords]
@@ -40,7 +39,7 @@ def get_ai(keywords,comb = 1,tresh = False):
                     n += 1
         if n >= comb:
             try:
-                if doc["publication_year"] >= 2000 and doc["publication_year"] <= 2021:
+                if doc["publication_year"] >= 1997 and doc["publication_year"] <= 1999:
                     doc.pop("_id")
                     list_of_insertion.append(doc)
             except:
