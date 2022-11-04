@@ -1,4 +1,5 @@
 import tqdm
+import pickle
 import pymongo
 import novelpy
 
@@ -6,18 +7,13 @@ Client = pymongo.MongoClient("mongodb://localhost:27017")
 db = Client["openAlex"]
 collection = db["works_ai_2_False"]
 
-list_ids = []
 
-
-for year in range(2000,2022,1):
-    docs = collection.find({"publication_year":year})
-    
-    for doc in tqdm.tqdm(docs):
-        list_ids.append(doc["id_cleaned"])
+for year in tqdm.tqdm(range(2000,2022,1)):
+    with open('Data/docs/focal_papers_ids/{}.pickle'.format(year), 'rb') as handle:
+        list_ids = pickle.load(handle)       
     
 
-    Lee = novelpy.indicators.Lee2015(client_name="mongodb://localhost:27017",
-                                    db_name = "openAlex_novelty",
+    Lee = novelpy.indicators.Lee2015(
                                     collection_name = "concepts",
                                     id_variable = 'id_cleaned',
                                     year_variable = 'publication_year',

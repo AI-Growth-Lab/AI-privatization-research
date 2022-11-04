@@ -6,11 +6,14 @@ import novelpy
 Client = pymongo.MongoClient("mongodb://localhost:27017")
 db = Client["openAlex"]
 collection = db["works_ai_2_False"]
+db_output = Client["openAlex_novelty"]
+collection_output = db_output["output_disruptiveness"]
 
-year = 2004
+year = 2011
 
 with open('Data/docs/focal_papers_ids/{}.pickle'.format(year), 'rb') as handle:
     list_ids = pickle.load(handle)       
+
     
 disruptiveness = novelpy.Disruptiveness(
     client_name = 'mongodb://localhost:27017',
@@ -28,6 +31,7 @@ disruptiveness.get_indicators()
 
 """
 db_output = Client["openAlex_novelty"]
-collection_output = db["output_disruptiveness"]
-collection.delete_many({"year":2002})
+collection_output = db_output["output_disruptiveness"]
+collection_output.delete_many({"year":2009})
+collection_output.delete_many({"year":2008})
 """
