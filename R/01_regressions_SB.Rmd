@@ -49,12 +49,12 @@ data <- read_rds('../../temp/data_reg.rds')
 ```{r}
 data %>% head()
 ```
+
 ```{r}
 data %>% glimpse()
 ```
 
-
-# Regression data prep
+# Regression data preparation
 
 ## Sorting etc
 
@@ -90,10 +90,10 @@ data %<>%
   ungroup()
 ```
 
-## last preprocessing
+## Last preprocessing
 
 ```{r}
-# Some last preprocessing
+# Some last pre-processing
 data %<>%
   drop_na() %>%
   filter(year >= 2000,
@@ -105,23 +105,101 @@ data %<>%
          concepts = concepts %>% factor()) 
 ```
 
-# Suvival Analysis 
 
-## PReperation 
+# Suvival Analysis
+
+## Preperation
 
 ```{r}
 ### Prepare for regression
-data_surv <- data %>% 
+
+xxx <- data %>% 
   filter(transited_t <= 0) %>%
   mutate(auth_star = citation_fw >= 0.9,
          aff_star = aff_citation_fw >= 0.9)
+
+#.......... Internal note: I have tried with different thresholds: 0.75, 0.95. Results are the same .........
+
+
+# Create survival variable for each author
+yyy <- xxx %>%
+  group_by(AID) %>%
+  mutate(t = max(t),
+         status = transition) %>%
+  select(AID, t, status) %>%
+  distinct()
+
+data_surv <- left_join(yyy, xxx, by = c("t", "AID"))
+
+rm(xxx, yyy)
+
+# Important note:
+# Each line corresponds to one author
+# symbol + corresponds to right censoring
+surv_object <- Surv(time = data_surv$t, event = data_surv$status)
+```
+
+
+```{r}
+head(surv_object)
 ```
 
 ```{r}
-# Surf object
-surv_object <- Surv(time = data_surv$t, event = data_surv$transition)
+table(surv_object)
 ```
 
+
+```{r}
+# Cox models 
+
+fit_cox1 <- coxph(surv_object ~ concepts + year 
+                  + seniority_all + DL,
+                  data = data_surv)
+
+fit_cox2 <- coxph(surv_object ~ concepts + year 
+                  + deg_cen + deg_cen_comp,
+                  data = data_surv)
+
+fit_cox3 <- coxph(surv_object ~ concepts + year 
+                  + citation_fw + auth_star + novelty_fw,
+                  data = data_surv)
+
+fit_cox4 <- coxph(surv_object ~ concepts + year 
+                  + aff_citation_fw + aff_star,
+                  data = data_surv)
+
+fit_cox5 <- coxph(surv_object ~ concepts + year 
+                  + seniority_all + DL + deg_cen + deg_cen_comp + citation_fw + auth_star + novelty_fw + aff_citation_fw + aff_star,
+                  data = data_surv)
+
+#...... Internal note: should we drop aff_star? Define it in another way? .......
+
+```
+
+
+```{r}
+stargazer(fit_cox1, fit_cox2, fit_cox3, fit_cox4, fit_cox5, type = 'latex', 
+          dep.var.labels = c("..."),
+          covariate.labels = c("Seniority", "Deep Learning Research",
+                               "Degree Centrality", "Degree Centrality Companies",
+                               "Citations", "Star Scientist", "Novelty", 
+                               "Institution Citations", "Top Institution"),
+          omit = c( 'concepts', 'year', 'Constant'), 
+          out ='../../output/surv_res1.tex'
+          )
+```
+
+
+```{r}
+stargazer(fit_cox1, fit_cox2, fit_cox3, fit_cox4, fit_cox5, type = 'text',
+          dep.var.labels = c("..."),
+          covariate.labels = c("Seniority", "Deep Learning Research",
+                               "Degree Centrality", "Degree Centrality Companies",
+                               "Citations", "Star Scientist", "Novelty", 
+                               "Institution Citations", "Top Institution"),
+          omit = c( 'concepts', 'year', 'Constant')
+          )
+```
 
 ## Kaplan-Meier Method and Log Rank Test
 
@@ -137,69 +215,24 @@ fit_km3 <- survfit(surv_object ~ aff_star,
 ```
 
 ```{r}
-p1 <- fit_km0 %>% autoplot() + labs(title= 'KM: baseline')
-p2 <- fit_km1 %>% autoplot() + labs(title= 'KM: DL researcher')
-p3 <- fit_km2 %>% autoplot() + labs(title= 'KM: Star researcher')
-p4 <- fit_km3 %>% autoplot() + labs(title= 'KM: Star institution')
+p1 <- fit_km0 %>% autoplot() + labs(title= 'KM: Baseline')
+p2 <- fit_km1 %>% autoplot() + labs(title= 'KM: DL Scientist')
+p3 <- fit_km2 %>% autoplot() + labs(title= 'KM: Star Scientist')
+p4 <- fit_km3 %>% autoplot() + labs(title= 'KM: Top Institution')
 
 (p1 + p2) / (p3 + p4) +  plot_layout(guides = "collect") & theme(legend.position = 'bottom') & labs(x = 'Time', y = 'Survival Probability')
 ```
 
-## Cox Proportional Hazard Model
-
-```{r}
-data_surv %>% glimpse()
-```
 
 
-```{r}
-### Fir Cox proportional hazard model
+#### FROM HERE !!!
 
-#Baseline
-fit_cox0 <- coxph(surv_object ~ seniority_all + concepts + year,
-                  data = data_surv)
-
-fit_cox1 <- coxph(surv_object ~ seniority_all + concepts + year 
-                  + DL,
-                  data = data_surv)
-
-fit_cox2 <- coxph(surv_object ~ seniority_all + concepts + year 
-                  + deg_cen + deg_cen_comp,
-                  data = data_surv)
-
-fit_cox3 <- coxph(surv_object ~ seniority_all + concepts + year 
-                  + citation_fw + novelty_fw,
-                  data = data_surv)
-
-fit_cox4 <- coxph(surv_object ~ seniority_all + concepts + year 
-                  + aff_citation_fw,
-                  data = data_surv)
-
-fit_cox5 <- coxph(surv_object ~ seniority_all + concepts + year 
-                  + DL + deg_cen + deg_cen_comp + citation_fw + novelty_fw + aff_citation_fw,
-                  data = data_surv)
-```
-
-
-```{r}
-stargazer(fit_cox0, fit_cox1, fit_cox2, fit_cox3, fit_cox4, fit_cox5, type = 'latex', 
-          omit = c( 'concepts', 'year', 'Constant'), out ='../../output/surv_res1.tex'
-          )
-```
-
-```{r}
-stargazer(fit_cox0, fit_cox1, fit_cox2, fit_cox3, fit_cox4, fit_cox5, type = 'text',
-          omit = c( 'concepts', 'year', 'Constant'))
-```
 
 ```{r}
 fit_cox5 %>% ggforest(data = data_surv)
 ```
 
-
-
-
-
+````{=html}
 <!---
 
 # Propensity Score matching 
@@ -351,8 +384,4 @@ fit_did_2 %>% interact_plot(pred = transited_t, modx = switcher,
 
 
 --->
-
-
-
-
-
+````
