@@ -100,9 +100,7 @@ data %<>%
          year <= 2021) %>%          
   group_by(AID) %>%
   mutate(t = 1:n()) %>%
-  ungroup() %>%
-  mutate(year = year %>% factor(),
-         concepts = concepts %>% factor()) 
+  ungroup() 
 ```
 
 # Suvival Analysis 
@@ -111,7 +109,9 @@ data %<>%
 
 ```{r}
 ### Prepare for regression
-data_surv <- data %>% 
+data_surv <- data %>%
+  mutate(year = year %>% factor(),
+         concepts = concepts %>% factor()) %>%
   filter(transited_t <= 0) %>%
   mutate(auth_star = citation_fw >= 0.9,
          aff_star = aff_citation_fw >= 0.9)
@@ -145,6 +145,12 @@ p4 <- fit_km3 %>% autoplot() + labs(title= 'KM: Star institution')
 (p1 + p2) / (p3 + p4) +  plot_layout(guides = "collect") & theme(legend.position = 'bottom') & labs(x = 'Time', y = 'Survival Probability')
 ```
 
+```{r}
+rm(fit_km0, fit_km1, fit_km2, fit_km3,
+   p1, p2, p3, p4)
+```
+
+
 ## Cox Proportional Hazard Model
 
 ```{r}
@@ -153,7 +159,8 @@ data_surv %>% glimpse()
 
 
 ```{r}
-### Fir Cox proportional hazard model
+### Fit Cox proportional hazard model
+set.seed(1337)
 
 #Baseline
 fit_cox0 <- coxph(surv_object ~ seniority_all + concepts + year,
@@ -193,14 +200,76 @@ stargazer(fit_cox0, fit_cox1, fit_cox2, fit_cox3, fit_cox4, fit_cox5, type = 'te
 ```
 
 ```{r}
-fit_cox5 %>% ggforest(data = data_surv)
+#fit_cox5 %>% ggforest(data = data_surv)
+```
+
+```{r}
+#save models
+list(fit_cox0, fit_cox1, fit_cox2, fit_cox3, fit_cox4, fit_cox5) %>% write_rds('../../temp/reg_surv1.rds')
+```
+
+```{r}
+rm(fit_cox0, fit_cox1, fit_cox2, fit_cox3, fit_cox4, fit_cox5)
+```
+
+# In between: Check dropouts
+
+```{r}
+data_dropout <- data %>%
+  group_by(AID) %>%
+  mutate(dropout = year == max(year, na.rm = TRUE)) %>%
+  ungroup() %>%
+  filter(year <= 2019) %>%
+  mutate(seniority_bin = case_when(
+      seniority_all <= 5 ~ "1 early",
+      seniority_all > 5 & seniority_all <= 10 ~ "2 mid",
+      seniority_all > 10 & seniority_all <= 15 ~ "3 mid late",
+      seniority_all > 15 ~ "4 late",
+  )
+  )
 ```
 
 
+```{r}
+data_dropout %>% 
+  filter(year >= 2015, year <2020) %>%
+  count(year, dropout) %>%
+  group_by(year) %>%
+  mutate(n = n / sum(n)) %>%
+  ungroup() %>%
+  mutate(year = year %>% as.character()) %>%
+  filter(dropout == TRUE) %>%
+  ggplot(aes(x = year, y = n)) +
+  geom_col()
+```
 
 
+```{r}
+n_dropout <- data_dropout %>%
+  filter(dropout == TRUE, switcher == FALSE) %>%
+  count(year, seniority_bin) %>% 
+  group_by(year) %>%
+  mutate(pct = n / sum(n)) %>%
+  ungroup()
+```
 
-<!---
+```{r}
+n_dropout %>%
+  mutate(year = year %>% as.character()) %>%
+  ggplot(aes(x = year, y = n, fill = seniority_bin, col = seniority_bin)) +
+  geom_col() +
+  labs(title = 'Dropouts total')
+```
+
+```{r}
+n_dropout %>%
+  mutate(year = year %>% as.character()) %>%
+  ggplot(aes(x = year, y = pct, fill = seniority_bin, col = seniority_bin)) +
+  geom_col() +
+  labs(title = 'Dropouts total')
+```
+
+
 
 # Propensity Score matching 
 
@@ -209,8 +278,12 @@ library(MatchIt)
 ```
 
 ```{r}
+data_static <- read_rds('../../temp/data_author_static.rds')
+```
+
+```{r}
 set.seed(1337)
-match_out<-  tbl_author_stat %>% 
+match_out <-  tbl_author_stat %>% 
   # Preselection
   select(author_id , author_type, paper_mean, cit_mean, year_n, year_end, gender, field_of_study_name) %>%
   mutate(author_type = (author_type %>% factor() %>% as.numeric()) -1 ) %>%
@@ -335,7 +408,6 @@ library(interactions)
 fit_did_2 %>% interact_plot(pred = transited_t, modx = switcher,
                             interval = TRUE) +
   theme(legend.position = 'bottom')
-
 ```
 
 ```{r}
