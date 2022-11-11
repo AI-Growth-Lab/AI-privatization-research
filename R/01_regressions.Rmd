@@ -111,7 +111,7 @@ data %<>%
 ### Prepare for regression
 data_surv <- data %>%
   mutate(year = year %>% factor(),
-         concepts = concepts %>% factor()) 
+         concepts = concepts %>% factor()) %>%
   filter(transited_t <= 0) %>%
   mutate(auth_star = citation_fw >= 0.9,
          aff_star = aff_citation_fw >= 0.9)
