@@ -39,7 +39,7 @@ library(magrittr) # For extra-piping operators (eg. %<>%)
 #library(patchwork)
 ```
 
-# PApers & Conceps
+# Papers & Conceps
 
 ## Read data
 
@@ -49,19 +49,17 @@ data <- read_csv('../../input/works.csv') %>%
   select(-title, -issn)
 ```
 
-```{r}
-data %>% glimpse()
-```
-
 ## Extract citations, novelty, OA
 
 ```{r}
 indicators <- data %>% select(list_aid, year, list_aid, oa, cited_by_count, novelty_lee) %>%
-  mutate(list_aid = list_aid %>% str_split('\n')) %>% 
+  mutate(n_author = list_aid %>% str_count('\n'),
+         list_aid = list_aid %>% str_split('\n')) %>% 
   unnest(list_aid) %>%
   rename(AID = list_aid) %>%
   group_by(AID, year) %>%
   summarise(
+    author_mean = n_author %>% mean(na.rm = TRUE),
     paper_n = n(),
     citation_n = cited_by_count %>% sum(na.rm = TRUE),
     citation_mean = cited_by_count %>% mean(na.rm = TRUE),
@@ -174,10 +172,6 @@ concepts_1 %<>%
 #  distinct(AID, year, .keep_all = TRUE)
 ```
 
-```{r}
-concepts_1 %>% head()
-```
-
 
 ```{r}
 concepts_1 %>% write_rds('../../temp/author_concepts.rds')
@@ -224,7 +218,7 @@ gc() #free up memrory and report the memory usage.
 
 ```{r}
 data <- read_csv('../../input/variables.csv') %>% 
-  select(-seniority, -concepts, -gender) %>%
+  select(-seniority, -seniority_all, -paper_n, transited_t, -switcher, -concepts, -gender) %>%
   mutate(AID = AID %>% as.character()) 
 ```
 
@@ -235,12 +229,71 @@ data %<>%
   mutate(aff_id = aff_id %>% str_remove('https://openalex.org/'))
 ```
 
-## Join with othr data
+## Static author
+
+```{r}
+data_static <- read_csv('../../input/author_static.csv') %>%
+  filter(type %in% c('education', 'switcher')) %>%
+  mutate(AID = AID %>% as.character()) %>%
+  filter(seniority >= 1960)
+```
+
+```{r}
+# only select edu and switchers
+data %<>%
+  semi_join(data_static, by = 'AID')
+```
+
+```{r}
+author_range <- data %>%
+  group_by(AID) %>%
+  summarise(year_n = n(),
+            year_min = year %>% min(na.rm = TRUE),
+            year_max = year %>% max(na.rm = TRUE),
+            year_transit = max(year * transition, na.rm = TRUE)
+            ) %>%
+  ungroup() %>%
+  mutate(year_transit = ifelse(year_transit == 0, NA, year_transit),
+         year_range = year_max - year_min + 1,
+         pct_obs = year_range / year_n)
+```
+
+```{r}
+# Merge with author static
+data_static %<>%
+  left_join(author_range, by = 'AID')
+```
+
+
+Now define the selection criteria for the sample
+
+```{r}
+author_range %<>%
+  filter(
+    year_min >= 1955,
+    year_max >= 2015, # latest year observed
+    year_n >= 4, # Number of years observed
+    year_range >= 4, # Number of years observed
+    pct_obs >= 0.5, # observed at least half of the time
+    ) 
+```
+
+```{r}
+# Filter data
+data %<>% semi_join(author_range, by = 'AID')
+```
+
+```{r}
+rm(author_range)
+```
+
+
+## Join with other data
 
 ```{r}
 # indicators
 data %<>% left_join(read_rds('../../temp/author_indicators.rds') %>%
-                      select(AID, year, citation_n, oa_mean, novelty_mean),
+                      select(AID, year, paper_n, author_mean, citation_n, oa_mean, novelty_mean),
                     by = c('AID', 'year'))
 ```
 
@@ -251,51 +304,6 @@ data %<>% left_join(read_rds('../../temp/author_concepts.rds') %>%
                     by = c('AID', 'year'))
 ```
 
-## Static author
-
-```{r}
-data_static <- data %>%
-  drop_na(aff_type) %>%
-  mutate(aff_uni = aff_type == 'education') %>%
-  group_by(AID) %>%
-  summarise(year_n = n(),
-            year_min = year %>% min(na.rm = TRUE),
-            year_max = year %>% max(na.rm = TRUE),
-            aff_uni_all = aff_uni %>% min(na.rm = TRUE),
-            aff_ind_all = aff_uni %>% max(na.rm = TRUE),
-            switcher = switcher %>% max(na.rm = TRUE)
-            ) %>%
-  ungroup() %>%
-  mutate(year_range = year_max - year_min + 1,
-         aff_ind_all = 1- aff_ind_all,
-         pct_obs = year_range / year_n)
-```
-
-Now define the selection criteria for the sample
-
-```{r}
-data_static %<>%
-  filter(
-    year_max >= 2015, # latest year observed
-    year_n >= 4, # Number of years observed
-    year_range >= 4, # Number of years observed
-    pct_obs >= 0.5, # observed at least half of the time
-    aff_ind_all == 0 # exclude industry only
-    ) 
-```
-
-```{r}
-data_static %>% write_rds('../../temp/data_author_static.rds')
-```
-
-```{r}
-data %<>% semi_join(data_static, by = 'AID')
-```
-
-```{r}
-rm(data_static)
-```
-
 ## Make complete panel
 
 ```{r}
@@ -303,18 +311,31 @@ data %<>%
   group_by(AID) %>%
     complete(year = full_seq(min(year):max(year), 1)) %>%
     arrange(year) %>%
-    fill(aff_id, aff_type, transited_t, switcher, seniority_all, .direction = "downup") %>%
+    fill(aff_id, aff_type, DL, .direction = "downup") %>%
   ungroup() 
-# TODO: Figure out what to alternatively do with seniority_all. Up to now its not really correct
 ```
+
+## Merge with author static
+
+```{r}
+data %<>% 
+  left_join(data_static %>% select(AID, type, seniority, year_transit, year_max, year_min), by = 'AID')
+```
+
+```{r}
+data %<>%
+  mutate(seniority = year - seniority + 1,
+    transited_t = year - year_transit + 1)
+```
+
 
 ## Replace NAs
   
 ```{r}
 data %<>%
-  replace_na(list(DL = 0, transition = 0, transited_t = 0, switcher = 0,
+  replace_na(list(transition = 0, 
                   deg_cen = 0, deg_cen_comp = 0,
-                  paper_n = 0, citation_n = 0, oa_mean = 0, novelty_mean = 0,
+                  paper_n = 0, author_mean = 0, citation_n = 0, oa_mean = 0, novelty_mean = 0,
                   concepts = 'unknown'))
 ```
 
@@ -353,13 +374,12 @@ data_institutions %>% write_rds('../../temp/data_institutions.rds')
 ```
 
 ```{r}
-data %<>% left_join(data_institutions %>% select(aff_id, year, aff_citation_fw), by = c('aff_id', 'year'))
+data %<>% left_join(data_institutions %>% select(aff_id, year, aff_citation_fw, aff_novelty_fw), by = c('aff_id', 'year'))
 ```
 
 ```{r}
 rm(data_institutions)
 ```
-
 
 ## Rolling mean
 
@@ -367,20 +387,36 @@ rm(data_institutions)
 data %<>% arrange(AID, year)
 ```
 
-
 ```{r}
-## NOTE: Not done now
-data %>%
+data %<>%
   group_by(AID) %>%
   arrange(year) %>%
   mutate(
-    across(c(paper_n, citation_n, oa_mean, novelty_mean, deg_cen, deg_cen_comp, novelty_fw, citation_fw), ~ zoo::rollmean(.x, 3, align = "left"))
-  )
+    across(c(paper_n, 
+             author_mean,
+             citation_n, 
+             oa_mean, 
+             novelty_mean, 
+             deg_cen, 
+             deg_cen_comp, 
+             novelty_fw, 
+             citation_fw,
+             aff_citation_fw,
+             aff_novelty_fw), ~ zoo::rollmean(.x, 3, fill = NA, align = "left"))
+  ) %>% 
+  ungroup()
 ```
+
 
 ## some other small thingies
 
-...
+```{r}
+# round long floats
+data %<>%
+  mutate(
+    across(where(is_double), round, 3)
+  )
+```
 
 ## Save
 
@@ -388,15 +424,9 @@ data %>%
 data %>% write_rds('../../temp/data_reg.rds')
 ```
 
+
+
+
+
 # TODOs
 
-TODO preprocessing:
-* X join citation & novelty var
-* X Make panel over all years
-* X replace NAs
-* X lag variables
-* X Pre-filtering (or maybe better when loading for regrerssion)
-* X Add institutional quelity indicators.
-
-TODO others
-* Do a static author collection
