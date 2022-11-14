@@ -1,0 +1,106 @@
+---
+title: 'Privatization of AI research: Descriptivess'
+author: "Daniel S. Hain (dsh@business.aau.dk)"
+date: "Updated `r format(Sys.time(), '%B %d, %Y')`"
+output:
+  html_notebook:
+    code_folding: hide
+    df_print: paged
+    toc: true
+    toc_depth: 2
+    toc_float:
+      collapsed: false
+    theme: flatly
+---
+
+```{r setup, include=FALSE}
+# Knitr options
+### Generic preamble
+rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
+gc() #free up memrory and report the memory usage.
+graphics.off()
+
+Sys.setenv(LANG = "en") # For english language
+options(scipen = 5) # To deactivate annoying scientific number notation
+
+### Load packages
+library(tidyverse) # Collection of all the good stuff like dplyr, ggplot2 ect.
+library(magrittr) # For extra-piping operators (eg. %<>%)
+
+# Descriptives
+#library(skimr)
+library(stargazer)
+
+# Viz
+library(patchwork)
+
+# Survival analysis
+library(survival)
+library(survminer)
+library(ggfortify)
+```
+
+# Load data
+
+```{r}
+data <- read_rds('../../temp/data_reg.rds')
+```
+
+
+# In between: Check dropouts
+
+```{r}
+data_dropout <- data %>%
+  group_by(AID) %>%
+  mutate(dropout = year == max(year, na.rm = TRUE)) %>%
+  ungroup() %>%
+  filter(year <= 2019) %>%
+  mutate(seniority_bin = case_when(
+      seniority_all <= 5 ~ "1 early",
+      seniority_all > 5 & seniority_all <= 10 ~ "2 mid",
+      seniority_all > 10 & seniority_all <= 15 ~ "3 mid late",
+      seniority_all > 15 ~ "4 late",
+  )
+  )
+```
+
+
+```{r}
+data_dropout %>% 
+  filter(year >= 2015, year <2020) %>%
+  count(year, dropout) %>%
+  group_by(year) %>%
+  mutate(n = n / sum(n)) %>%
+  ungroup() %>%
+  mutate(year = year %>% as.character()) %>%
+  filter(dropout == TRUE) %>%
+  ggplot(aes(x = year, y = n)) +
+  geom_col()
+```
+
+
+```{r}
+n_dropout <- data_dropout %>%
+  filter(dropout == TRUE, switcher == FALSE) %>%
+  count(year, seniority_bin) %>% 
+  group_by(year) %>%
+  mutate(pct = n / sum(n)) %>%
+  ungroup()
+```
+
+```{r}
+n_dropout %>%
+  mutate(year = year %>% as.character()) %>%
+  ggplot(aes(x = year, y = n, fill = seniority_bin, col = seniority_bin)) +
+  geom_col() +
+  labs(title = 'Dropouts total')
+```
+
+```{r}
+n_dropout %>%
+  mutate(year = year %>% as.character()) %>%
+  ggplot(aes(x = year, y = pct, fill = seniority_bin, col = seniority_bin)) +
+  geom_col() +
+  labs(title = 'Dropouts total')
+```
+
