@@ -105,26 +105,32 @@ data %<>%
          year_min = ifelse(year_min < 2000, 2000, year_min))
 ```
 
+# Descriptives
 
+## All data
 
-# Suvival Analysis 
+```{r, results='asis'}
+data %>% select(seniority, deg_cen, deg_cen_comp, co_author_industry, DL, paper_n, author_mean, citation_fw, novelty_fw, aff_citation_fw, aff_novelty_fw) %>% as.data.frame() %>%
+  stargazer(summary = TRUE, type = 'html')
+```
 
-## PReperation 
+## By university vs. switcher career
 
-```{r}
-### Prepare for regression
-data_surv <- data %>%
-  mutate(t = year - year_min + 1,
-         year %>% factor(),
-         concepts = concepts %>% factor()) %>%
-  filter(transited_t <= 1 | year == year_max) %>%
-  mutate(auth_star = citation_fw >= 0.9,
-         aff_star = aff_citation_fw >= 0.9) 
+```{r, results='asis'}
+data %>% 
+  select(type, seniority, deg_cen, deg_cen_comp, co_author_industry, DL, paper_n, author_mean, citation_fw, novelty_fw, aff_citation_fw, aff_novelty_fw) %>%
+  as.data.frame() %>%
+  split(.$type) %>% 
+  walk(~ stargazer(., summary = TRUE, type = 'html'))
 ```
 
 ```{r}
 data_surv %>% skimr::skim()
 ```
+
+
+
+
 
 ```{r}
 # Surf object
@@ -203,8 +209,9 @@ stargazer(fit_cox0, fit_cox1, fit_cox2, fit_cox3, fit_cox4, fit_cox5, type = 'la
           )
 ```
 
-```{r}
-stargazer(fit_cox0, fit_cox1, fit_cox2, fit_cox3, fit_cox4, fit_cox5, type = 'text',
+```{r, results='asis'}
+stargazer(fit_cox0, fit_cox1, fit_cox2, fit_cox3, fit_cox4, fit_cox5,
+          type = 'html',
           omit = c( 'concepts', 'year', 'Constant'))
 ```
 
@@ -218,11 +225,18 @@ list(fit_cox0, fit_cox1, fit_cox2, fit_cox3, fit_cox4, fit_cox5) %>% write_rds('
 ```
 
 ```{r}
-rm(fit_cox0, fit_cox1, fit_cox2, fit_cox3, fit_cox4, fit_cox5)
+#rm(fit_cox0, fit_cox1, fit_cox2, fit_cox3, fit_cox4, fit_cox5)
 ```
 
 
+
+
+
 # Propensity Score matching 
+
+To be done now...
+
+<!---
 
 ```{r}
 library(MatchIt)
