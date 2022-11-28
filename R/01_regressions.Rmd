@@ -55,27 +55,15 @@ data <- read_rds('../../temp/data_reg.rds')
 # Just to be sure
 data %<>%
   distinct(AID, year, .keep_all = TRUE) %>%
-  arrange(AID, year) %>%
   relocate(AID, year, type, transition, transited_t, seniority) 
 ```
-
-```{r}
-# NA replacement again just to be sure
-data %<>%
-  replace_na(list(transition = 0, DL = 0,
-                  deg_cen = 0, deg_cen_comp = 0,
-                  paper_n = 0, author_mean = 0, citation_n = 0, oa_mean = 0, novelty_mean = 0,
-                  citation_fw = 0, novelty_fw = 0, aff_citation_fw = 0, aff_novelty_fw = 0,
-                  concepts = 'unknown')
-             )
-```
-
 
 ## Lagged variables
 
 ```{r}
 # Decide what to lag
 data %<>%
+  arrange(AID, year) %>%
   group_by(AID) %>%
   mutate(
     across(c(concepts,
@@ -101,36 +89,55 @@ data %<>%
 data %<>%
   filter(year >= 2000,
          year <= 2021) %>%
-  mutate(co_author_industry = deg_cen_comp > 0,
-         year_min = ifelse(year_min < 2000, 2000, year_min))
-```
-
-# Descriptives
-
-## All data
-
-```{r, results='asis'}
-data %>% select(seniority, deg_cen, deg_cen_comp, co_author_industry, DL, paper_n, author_mean, citation_fw, novelty_fw, aff_citation_fw, aff_novelty_fw) %>% as.data.frame() %>%
-  stargazer(summary = TRUE, type = 'html')
-```
-
-## By university vs. switcher career
-
-```{r, results='asis'}
-data %>% 
-  select(type, seniority, deg_cen, deg_cen_comp, co_author_industry, DL, paper_n, author_mean, citation_fw, novelty_fw, aff_citation_fw, aff_novelty_fw) %>%
-  as.data.frame() %>%
-  split(.$type) %>% 
-  walk(~ stargazer(., summary = TRUE, type = 'html'))
+  mutate(co_author_industry = deg_cen_comp > 0) #,year_min = ifelse(year_min < 2000, 2000, year_min))
 ```
 
 ```{r}
-data_surv %>% skimr::skim()
+# Check missing data
+data  %>% naniar::gg_miss_var()
+```
+
+```{r}
+# Replace NA. All others are by construction
+data %<>%
+  replace_na(list(DL = 0, concepts = 'unknown'))
 ```
 
 
+# Survival analysis
+
+XXXXXXXXXXXXXXXXx
+XXXXXXXXXXXXXXXXx TODO: Change here:
+XXXXXXXXXXXXXXXXx
+
+```{r}
+data_surv <- data %>% 
+  # add the time
+  group_by(AID) %>%
+  mutate(t = 1:n()) %>%
+  ungroup() %>%
+  # Filter for last observation (=right cernsoring or transition)
+  filter(is.na(transited_t) | transited_t <= 1) %>%
+  group_by(AID) %>%
+  slice_max(order_by = t, n= 1, with_ties = FALSE) %>%
+  ungroup() %>%
+  # Add some variables
+  mutate(auth_star = citation_fw >= 0.9,
+         aff_star = aff_citation_fw >= 0.9,
+         )
 
 
+# Previous filtering approach:
+# filter(  (type == 'education' & year == year_max) | (type == 'switcher' & transition == 1)) %>%
+```
+
+```{r}
+data_surv %>% count(type)
+```
+
+```{r}
+data_surv %>% filter(type == 'switcher')
+```
 
 ```{r}
 # Surf object
@@ -140,8 +147,6 @@ surv_object <- Surv(time = data_surv$t, event = data_surv$transition)
 ```{r}
 table(surv_object)
 ```
-
-
 
 ## Kaplan-Meier Method and Log Rank Test
 
@@ -209,10 +214,14 @@ stargazer(fit_cox0, fit_cox1, fit_cox2, fit_cox3, fit_cox4, fit_cox5, type = 'la
           )
 ```
 
+```{r}
+stargazer(fit_cox0, fit_cox1, fit_cox2, fit_cox3, fit_cox4, fit_cox5, type = 'text', 
+          omit = c( 'concepts', 'year', 'Constant')
+          )
+```
+
 ```{r, results='asis'}
-stargazer(fit_cox0, fit_cox1, fit_cox2, fit_cox3, fit_cox4, fit_cox5,
-          type = 'html',
-          omit = c( 'concepts', 'year', 'Constant'))
+#stargazer(fit_cox0, fit_cox1, fit_cox2, fit_cox3, fit_cox4, fit_cox5, type = 'html', omit = c( 'concepts', 'year', 'Constant'))
 ```
 
 ```{r}
@@ -234,9 +243,7 @@ list(fit_cox0, fit_cox1, fit_cox2, fit_cox3, fit_cox4, fit_cox5) %>% write_rds('
 
 # Propensity Score matching 
 
-To be done now...
 
-<!---
 
 ```{r}
 library(MatchIt)
@@ -246,15 +253,29 @@ library(MatchIt)
 data_static <- read_rds('../../temp/data_author_static.rds')
 ```
 
+Matching strategy:
+
+* match persons by year (exact) on:
+  * current seniority (exact)
+  * current concept (approximate)
+  * current paper_n, citation / novelty rank (approximate)
+  * current institution citation / novelty rank (approximate)
+
+```{r}
+data_match <- data %>%
+  filter(type == 'education' | type == 'switcher' & transition == 1) %>%
+  select(AID, type, year, aff_id, seniority, paper_n, author_mean, oa_mean, concepts, citation_fw, novelty_fw) %>%
+  mutate(type = (type %>% factor() %>% as.numeric()) -1) 
+```
+
+
+
 ```{r}
 set.seed(1337)
-match_out <-  tbl_author_stat %>% 
-  # Preselection
-  select(author_id , author_type, paper_mean, cit_mean, year_n, year_end, gender, field_of_study_name) %>%
-  mutate(author_type = (author_type %>% factor() %>% as.numeric()) -1 ) %>%
+match_out <-  data_match %>% 
   # Matching
-  matchit(author_type ~ paper_mean + cit_mean + year_end + gender + field_of_study_name, exact = 'year_n',
-                      data = ., verbose = FALSE, method = "nearest", ratio = 1) # OR method  "genetic" ... takes forever.....
+  matchit(type ~ aff_id + paper_n + author_mean + oa_mean + concepts + citation_fw + novelty_fw, exact = c('year', 'seniority'),
+          data = ., verbose = FALSE, method = "nearest", ratio = 1) # OR method  "genetic" ... takes forever.....
 ```
 
 ```{r}
@@ -266,15 +287,15 @@ match_data <- match_out %>%
 ```
 
 ```{r}
-matched_pairs  <- bind_cols( tbl_author_stat[row.names(match_out$match.matrix),"author_id"] , tbl_author_stat[match_out$match.matrix,"author_id"] ) %>%
-  rename(orig_author_id = `author_id...1`,
-         author_id = `author_id...2`) 
+matched_pairs  <- bind_cols(data_match[row.names(match_out$match.matrix),"AID"] , data_match[match_out$match.matrix,"AID"] ) %>%
+  rename(orig_AID = `AID...1`,
+         author_AID = `AID...2`) 
 ```
 
 ```{r}
 # Get the time where the matched switcher transits
 matched_pairs %<>%
-  left_join(data %>% filter(switch == TRUE) %>% select(author_id, time) %>% distinct(author_id, .keep_all = TRUE), by = c('orig_author_id' = 'author_id')) %>%
+  left_join(data %>% filter(switch == TRUE) %>% select(author_id, time) %>% distinct(author_id, .keep_all = TRUE), by = c('orig_AID' = 'AIDd')) %>%
   mutate(switch = TRUE) %>%
   drop_na() 
 ```
@@ -389,7 +410,37 @@ fit_did_2 %>% interact_plot(pred = transited_t, modx = switcher,
 
 --->
 
+# Descriptives
 
+<!---
+
+## All data
+
+```{r, results='asis'}
+data %>% select(seniority, deg_cen, deg_cen_comp, co_author_industry, DL, paper_n, author_mean, citation_fw, novelty_fw, aff_citation_fw, aff_novelty_fw) %>% as.data.frame() %>%
+  stargazer(summary = TRUE, type = 'html')
+```
+
+## By university vs. switcher career
+
+```{r, results='asis'}
+data %>% 
+  select(type, seniority, deg_cen, deg_cen_comp, co_author_industry, DL, paper_n, author_mean, citation_fw, novelty_fw, aff_citation_fw, aff_novelty_fw) %>%
+  as.data.frame() %>%
+  split(.$type) %>% 
+  walk(~ stargazer(., summary = TRUE, type = 'html'))
+```
+
+
+```{r}
+data %>% 
+  filter(transited_t <= 0) %>%
+  mutate(auth_star = citation_fw >= 0.9,
+         aff_star = aff_citation_fw >= 0.9)
+```
+
+
+-->
 
 
 

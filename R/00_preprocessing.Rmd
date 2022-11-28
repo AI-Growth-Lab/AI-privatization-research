@@ -26,17 +26,6 @@ options(scipen = 5) # To deactivate annoying scientific number notation
 ### Load packages
 library(tidyverse) # Collection of all the good stuff like dplyr, ggplot2 ect.
 library(magrittr) # For extra-piping operators (eg. %<>%)
-
-# UML
-#library(FactoMineR)
-#library(factoextra)
-
-# Descriptives
-#library(skimr)
-#library(stargazer)
-
-# Viz
-#library(patchwork)
 ```
 
 # Papers & Conceps
@@ -161,18 +150,6 @@ concepts_1 %<>%
   select(-n)
 ```
 
-
-```{r}
-## Faster but not working data table alternative
-#data.table::setDT(concepts_1)[, .SD[which.max(n)], by=list(AID, year)] %>%
-#  data.table::setDF() %>%
-#  as_tibble() %>%
-#  select(AID, year, concepts) %>%
-#  arrange(AID, year) %>%
-#  distinct(AID, year, .keep_all = TRUE)
-```
-
-
 ```{r}
 concepts_1 %>% write_rds('../../temp/author_concepts.rds')
 ```
@@ -232,17 +209,22 @@ data %<>%
 ## Static author
 
 ```{r}
-data_static <- read_csv('../../input/author_static.csv') %>%
-  filter(type %in% c('education', 'switcher')) %>%
+data_static <- read_csv('../../input/author_static_detailed.csv') %>%
   mutate(AID = AID %>% as.character()) %>%
   filter(seniority >= 1960)
 ```
 
 ```{r}
-# only select edu and switchers
-data %<>%
-  semi_join(data_static, by = 'AID')
+data_static %>% count(type, sort = TRUE)
 ```
+
+```{r}
+# Filter by type
+data_static %<>%
+  filter(type %in% c('education', 'education_company')) %>% # Old: 'switcher'
+  mutate(type = ifelse(type == 'education_company', 'switcher', type))
+```
+
 
 ```{r}
 author_range <- data %>%
@@ -258,20 +240,13 @@ author_range <- data %>%
          pct_obs = year_range / year_n)
 ```
 
-```{r}
-# Merge with author static
-data_static %<>%
-  left_join(author_range, by = 'AID')
-```
-
-
 Now define the selection criteria for the sample
 
 ```{r}
 author_range %<>%
   filter(
-    year_min >= 1955,
-    year_max >= 2015, # latest year observed
+    year_min >= 1950,
+    year_max >= 2010, # latest year observed
     year_n >= 4, # Number of years observed
     year_range >= 4, # Number of years observed
     pct_obs >= 0.5, # observed at least half of the time
@@ -279,12 +254,21 @@ author_range %<>%
 ```
 
 ```{r}
-# Filter data
-data %<>% semi_join(author_range, by = 'AID')
+# Merge with author static
+data_static %<>%
+  inner_join(author_range, by = 'AID')
 ```
 
 ```{r}
 rm(author_range)
+```
+
+Now we already filtr the panel data for our selection, so we dont have to do the lenghty preprocessing for all. 
+Note: We do a semi and not an inner_join, since we want to join the static data into the panel only after the full range of years in the panel is constructed.
+
+```{r}
+# Filter data
+data %<>% semi_join(data_static, by = 'AID')
 ```
 
 
@@ -319,21 +303,28 @@ data %<>%
 
 ```{r}
 data %<>% 
-  left_join(data_static %>% select(AID, type, seniority, year_transit, year_max, year_min), by = 'AID')
+  inner_join(data_static %>% select(AID, type, seniority, year_transit, year_max, year_min), by = 'AID')
 ```
 
 ```{r}
 data %<>%
   mutate(seniority = year - seniority + 1,
-    transited_t = year - year_transit + 1)
+         transited_t = year - year_transit + 1) %>%
+  mutate(transited_t = ifelse(transited_t < 1, NA, transited_t))
 ```
 
 
 ## Replace NAs
+
+```{r}
+data %>% naniar::gg_miss_var()
+```
+
   
 ```{r}
+# Replace NAs
 data %<>%
-  replace_na(list(transition = 0, 
+  replace_na(list(transition = 0, DL = 0,
                   deg_cen = 0, deg_cen_comp = 0,
                   paper_n = 0, author_mean = 0, citation_n = 0, oa_mean = 0, novelty_mean = 0,
                   concepts = 'unknown'))
@@ -342,6 +333,10 @@ data %<>%
 ```{r}
 #in-between save
 data %>% write_rds('../../temp/data_reg_temp.rds')
+```
+
+```{r}
+#data <- read_rds('../../temp/data_reg_temp.rds')
 ```
 
 ## Field weighted indicators
@@ -359,6 +354,7 @@ data %<>%
 
 ```{r}
 data_institutions <- data %>%
+  drop_na(aff_id) %>%
   group_by(aff_id, year) %>%
   summarise(author_n = n_distinct(AID),
             aff_paper_n = n(),
@@ -366,7 +362,8 @@ data_institutions <- data %>%
             aff_novelty_fw = novelty_fw %>% mean()
             ) %>%
   ungroup() %>%
-  mutate(across(everything(), ~replace(.x, is.nan(.x), 0)))
+  mutate(across(everything(), ~replace(.x, is.nan(.x), 0)),
+         across(everything(), ~replace(.x, is.na(.x), 0)))
 ```
 
 ```{r}
@@ -375,6 +372,17 @@ data_institutions %>% write_rds('../../temp/data_institutions.rds')
 
 ```{r}
 data %<>% left_join(data_institutions %>% select(aff_id, year, aff_citation_fw, aff_novelty_fw), by = c('aff_id', 'year'))
+```
+
+
+```{r}
+data  %>% naniar::gg_miss_var()
+```
+
+```{r}
+# Replace NAs
+data %<>%
+  replace_na(list(aff_citation_fw = 0, aff_novelty_fw = 0))
 ```
 
 ```{r}
@@ -390,7 +398,6 @@ data %<>% arrange(AID, year)
 ```{r}
 data %<>%
   group_by(AID) %>%
-  arrange(year) %>%
   mutate(
     across(c(paper_n, 
              author_mean,
@@ -402,9 +409,10 @@ data %<>%
              novelty_fw, 
              citation_fw,
              aff_citation_fw,
-             aff_novelty_fw), ~ zoo::rollmean(.x, 3, fill = NA, align = "left"))
-  ) %>% 
+             aff_novelty_fw), ~  zoo::rollmean(.x, 2, fill = NA, align = "right"))) %>% 
   ungroup()
+
+#  Alternative slider::slide_dbl(~mean(.x), .before = 2))
 ```
 
 
@@ -413,9 +421,7 @@ data %<>%
 ```{r}
 # round long floats
 data %<>%
-  mutate(
-    across(where(is_double), round, 3)
-  )
+  mutate(across(where(is_double), round, 3))
 ```
 
 ## Save
@@ -425,8 +431,4 @@ data %>% write_rds('../../temp/data_reg.rds')
 ```
 
 
-
-
-
-# TODOs
 
