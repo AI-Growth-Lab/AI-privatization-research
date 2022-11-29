@@ -6,7 +6,7 @@ output:
   html_notebook:
     code_folding: hide
     df_print: paged
-    toc: true
+    toc: false
     toc_depth: 2
     toc_float:
       collapsed: false
@@ -110,10 +110,6 @@ data %<>%
 
 # Survival analysis
 
-XXXXXXXXXXXXXXXXx
-XXXXXXXXXXXXXXXXx TODO: Change here:
-XXXXXXXXXXXXXXXXx
-
 ```{r}
 data_surv <- data %>% 
   # Filter for last observation (=right cernsoring or transition)
@@ -133,10 +129,6 @@ data_surv <- data %>%
 
 ```{r}
 data_surv %>% count(type)
-```
-
-```{r}
-data_surv %>% filter(type == 'switcher')
 ```
 
 ```{r}
@@ -209,19 +201,16 @@ fit_cox5 <- coxph(surv_object ~ seniority + concepts + year
 
 
 ```{r}
-stargazer(fit_cox0, fit_cox1, fit_cox2, fit_cox3, fit_cox4, fit_cox5, type = 'latex', 
-          omit = c( 'concepts', 'year', 'Constant'), out ='../../output/surv_res1.tex'
-          )
+#stargazer(fit_cox0, fit_cox1, fit_cox2, fit_cox3, fit_cox4, fit_cox5, type = 'latex', 
+# omit = c( 'concepts', 'year', 'Constant'), out ='../../output/surv_res1.tex')
 ```
 
 ```{r}
-stargazer(fit_cox0, fit_cox1, fit_cox2, fit_cox3, fit_cox4, fit_cox5, type = 'text', 
-          omit = c( 'concepts', 'year', 'Constant')
-          )
+#stargazer(fit_cox0, fit_cox1, fit_cox2, fit_cox3, fit_cox4, fit_cox5, type = 'text',  omit = c( 'concepts', 'year', 'Constant'))
 ```
 
 ```{r, results='asis'}
-#stargazer(fit_cox0, fit_cox1, fit_cox2, fit_cox3, fit_cox4, fit_cox5, type = 'html', omit = c( 'concepts', 'year', 'Constant'))
+stargazer(fit_cox0, fit_cox1, fit_cox2, fit_cox3, fit_cox4, fit_cox5, type = 'html', omit = c( 'concepts', 'year', 'Constant'))
 ```
 
 ```{r}
@@ -237,29 +226,11 @@ list(fit_cox0, fit_cox1, fit_cox2, fit_cox3, fit_cox4, fit_cox5) %>% write_rds('
 #rm(fit_cox0, fit_cox1, fit_cox2, fit_cox3, fit_cox4, fit_cox5)
 ```
 
-
-
-
-
 # Propensity Score matching 
-
-
 
 ```{r}
 library(MatchIt)
 ```
-
-```{r}
-#data_static <- read_rds('../../temp/data_author_static.rds')
-```
-
-Matching strategy:
-
-* match persons by year (exact) on:
-  * current seniority (exact)
-  * current concept (approximate)
-  * current paper_n, citation / novelty rank (approximate)
-  * current institution citation / novelty rank (approximate)
 
 ```{r}
 data_match <- data %>%
@@ -270,9 +241,8 @@ data_match <- data %>%
   drop_na()
 ```
 
-TODO: Check if the factor is right
-
 ```{r}
+# Do the PSM
 set.seed(1337)
 match_out <-  data_match %>% 
   # Matching
@@ -280,14 +250,15 @@ match_out <-  data_match %>%
           data = ., verbose = FALSE, method = "nearest", ratio = 1) # OR method  "genetic" ... takes forever.....
 ```
 
-
 ```{r}
+# GEt the matched pairs
 matched_pairs  <- bind_cols(data_match[row.names(match_out$match.matrix),"AID"] , data_match[match_out$match.matrix,"AID"] ) %>%
   rename(orig_AID = `AID...1`,
          match_AID = `AID...2`) 
 ```
 
 ```{r}
+# construct the matched dataset
 data_did <- matched_pairs %>% 
   mutate(pair_id = 1:n())
 
@@ -305,10 +276,14 @@ data_did <- data_did %>%
 # compute transition point for matched partner
 data_did %<>%
   group_by(pair_id) %>%
-  mutate(year_transit = max(year_transit, na.rm = TRUE),
+  mutate(switcher = type == 'switcher',
+         year_transit = max(year_transit, na.rm = TRUE),
          transition = year == year_transit,
          transited = year >= year_transit,
-         transited_t = year - year_transit + 1) 
+         transited_t = year - year_transit + 1,
+         year = year %>% factor(),
+         concepts = concepts %>% factor()) %>%
+  drop_na()
 ```
 
 ```{r}
@@ -318,14 +293,13 @@ data_did %>% saveRDS('../../temp/reg_data_did.rds')
 # Diff-in-Diff
 
 ```{r}
-# For the interaction plot code logical to numeric
-# data_did %<>%  mutate(switcher = switcher %>% as.numeric(), transited = transited %>% as.numeric())
+#data_did <- read_rds('../../temp/reg_data_did.rds')
 ```
 
+
 ```{r}
-data %<>%
-  mutate(year = year %>% factor(),
-         concepts = concepts %>% factor())
+# For the interaction plot code logical to numeric
+# data_did %<>%  mutate(switcher = switcher %>% as.numeric(), transited = transited %>% as.numeric())
 ```
 
 
@@ -334,33 +308,35 @@ data %<>%
 ```{r}
 # fit_did_0 <- lm(citation_rank ~ switcher + field_of_study_name, data = data_did)
 
-fit_did_1 <- lm(citation_fw ~ (type + transited)^2 + year + seniority + year + concepts, 
+fit_did_1 <- lm(citation_fw ~ (type + transited)^2 + year + t + seniority + year + concepts, 
                 data = data_did)
 
-fit_did_2 <- lm(citation_fw ~ (type + transited)^2 + (transited + transited_t)^2 + year + seniority + year + concepts + transited_t, 
+fit_did_2 <- lm(citation_fw ~ (type + transited)^2 + transited:transited_t + year + t + seniority + year + concepts + transited_t, 
                 data = data_did)
 
-fit_did_3 <- lm(novelty_fw ~ (type + transited)^2 + year + seniority + year + concepts, 
+fit_did_3 <- lm(novelty_fw ~ (type + transited)^2 + year + seniority + year + t + concepts, 
                 data = data_did)
 
-fit_did_4 <- lm(novelty_fw ~ (type + transited)^2 + (transited + transited_t)^2 + year + seniority + year + concepts + transited_t, 
+fit_did_4 <- lm(novelty_fw ~ (type + transited)^2 + transited:transited_t + year + t + seniority + concepts + transited_t, 
                 data = data_did)
 
 # + paper_n ?
 ```
 
 ```{r}
-stargazer(fit_did_1, fit_did_2, fit_did_3, fit_did_4, type = 'text',
-          omit = c('concepts', 'year', 'Constant'))
+#stargazer(fit_did_1, fit_did_2, fit_did_3, fit_did_4, type = 'latex', omit = c( 'concepts', 'year', 'Constant'), out ='../../output/did_res1.tex')
 ```
-
 
 ```{r}
-# stargazer(fit_did_0, fit_did_1, fit_did_2, fit_did_3, fit_did_4, type = 'latex',
-#          omit = c('concepts', 'year', 'Constant'))
+# stargazer(fit_did_1, fit_did_2, fit_did_3, fit_did_4, type = 'text', omit = c('concepts', 'year', 'Constant'))
+```
+
+```{r, results='asis'}
+stargazer(fit_did_1, fit_did_2, fit_did_3, fit_did_4, type = 'html', omit = c( 'concepts', 'year', 'Constant'))
 ```
 
 
+<!---
 ### Template new plotting model
 
 ```{r}
