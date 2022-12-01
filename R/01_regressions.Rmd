@@ -280,9 +280,8 @@ data_did %<>%
          year_transit = max(year_transit, na.rm = TRUE),
          transition = year == year_transit,
          transited = year >= year_transit,
-         transited_t = year - year_transit + 1,
-         year = year %>% factor(),
-         concepts = concepts %>% factor()) %>%
+         transited_t = year - year_transit + 1) %>%
+  mutate(across(c(year, concepts, transited), ~ factor(.x))) %>%
   mutate(transited_t = ifelse(transited_t > 0, transited_t, 0)) %>%
   drop_na()
 ```
@@ -312,13 +311,13 @@ data_did %>% saveRDS('../../temp/reg_data_did.rds')
 fit_did_1 <- lm(citation_fw ~ (type + transited)^2 + year + t + seniority + year + concepts, 
                 data = data_did)
 
-fit_did_2 <- lm(citation_fw ~ (type + transited)^2 + transited*transited_t + year + t + seniority + year + concepts + transited_t, 
+fit_did_2 <- lm(citation_fw ~ (type + transited)^2 + (transited*transited_t)^2 + year + t + seniority + year + concepts, 
                 data = data_did)
 
 fit_did_3 <- lm(novelty_fw ~ (type + transited)^2 + year + seniority + year + t + concepts, 
                 data = data_did)
 
-fit_did_4 <- lm(novelty_fw ~ (type + transited)^2 + transited*transited_t + year + t + seniority + concepts , 
+fit_did_4 <- lm(novelty_fw ~ (type + transited)^2 + (transited*transited_t)^2 + year + t + seniority + concepts , 
                 data = data_did)
 
 # + paper_n ?
