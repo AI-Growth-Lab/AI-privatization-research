@@ -2,16 +2,14 @@
 
 import tqdm
 import pickle
-import pymongo
 import novelpy
-
-
 
 for year in tqdm.tqdm(range(2000,2022,1)):
     with open('Data/docs/focal_papers_ids/{}.pickle'.format(year), 'rb') as handle:
         list_ids = pickle.load(handle)       
     
-    Foster = novelpy.indicators.Foster2015(
+    Foster = novelpy.indicators.Foster2015(client_name = 'mongodb://localhost:27017',
+                                           db_name = "openAlex_novelty",
                                     collection_name = "concepts",
                                     id_variable = 'id_cleaned',
                                     year_variable = 'publication_year',

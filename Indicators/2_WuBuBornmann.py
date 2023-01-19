@@ -9,7 +9,7 @@ collection = db["works_ai_2_False"]
 db_output = Client["openAlex_novelty"]
 collection_output = db_output["output_disruptiveness"]
 
-year = 2011
+year = 2000
 
 with open('Data/docs/focal_papers_ids/{}.pickle'.format(year), 'rb') as handle:
     list_ids = pickle.load(handle)       

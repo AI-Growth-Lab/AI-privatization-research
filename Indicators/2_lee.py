@@ -14,11 +14,11 @@ for year in tqdm.tqdm(range(2000,2022,1)):
     
 
     Lee = novelpy.indicators.Lee2015(
-                                    collection_name = "concepts",
+                                    collection_name = "references",
                                     id_variable = 'id_cleaned',
                                     year_variable = 'publication_year',
-                                    variable = "concepts",
-                                    sub_variable = "display_name",
+                                    variable = "referenced_works",
+                                    sub_variable = "journal",
                                     focal_year = year,
                                     density = False,
                                     list_ids = list_ids)

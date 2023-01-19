@@ -1,11 +1,6 @@
 import tqdm
 import pymongo
 
-# Number of keywords we want in a paper
-comb = 2
-# Levels of confidence for each level of concept
-tresh = False
-levels = {1:0.3, 2:0.5, 3:0.7, 4:0.8, 5:0.9}
 
 Client = pymongo.MongoClient("mongodb://localhost:27017")
 db = Client["openAlex"]
@@ -39,7 +34,7 @@ def get_ai(keywords,comb = 1,tresh = False):
                     n += 1
         if n >= comb:
             try:
-                if doc["publication_year"] >= 1997 and doc["publication_year"] <= 1999:
+                if doc["publication_year"] >= 1500 and doc["publication_year"] <= 1996:
                     doc.pop("_id")
                     list_of_insertion.append(doc)
             except:
@@ -51,4 +46,14 @@ def get_ai(keywords,comb = 1,tresh = False):
     collection_ai.insert_many(list_of_insertion)
     list_of_insertion = []
 
-get_ai(keywords, comb = comb, tresh = tresh)
+
+
+
+if __name__ == "__main__":
+    # Number of keywords we want in a paper
+    comb = 2
+    # Levels of confidence for each level of concept
+    tresh = False
+    levels = {1:0.3, 2:0.5, 3:0.7, 4:0.8, 5:0.9}
+
+    get_ai(keywords, comb = comb, tresh = tresh)

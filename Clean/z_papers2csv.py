@@ -11,7 +11,8 @@ Client = pymongo.MongoClient("mongodb://localhost:27017")
 db = Client["openAlex"]
 collection = db["works_ai_2_False"]
 
-
+db_output = Client["openAlex_novelty"]
+collection_disruptiveness = db_output["output_disruptiveness"]
 
 data = []
 for year in tqdm.tqdm(period):
@@ -19,10 +20,13 @@ for year in tqdm.tqdm(period):
       data += json.load(f)
 data = {i["id_cleaned"]:i["concepts_lee"] for i in data}
 
-columns = ["id", "year", "title", "type", "oa", "cited_by_count", "list_aid", "concepts", "issn","novelty_lee"]
+columns = ["id", "year", "title", "type", "oa", "cited_by_count", "list_aid", "concepts", "issn",
+           "novelty_lee","DI1","DI5","DI5nok","DI1nok","DeIn","Breadth","Depth"]
 list_of_insertion = []
 
 docs = collection.find()
+
+n = 0
 for doc in tqdm.tqdm(docs):
     year = doc["publication_year"]
     _id = doc["id_cleaned"]
@@ -34,6 +38,25 @@ for doc in tqdm.tqdm(docs):
         novelty_lee = data[_id]["score"]["novelty"]
     except:
         novelty_lee = None
+                
+    try:
+        doc_temp = collection_disruptiveness.find_one({"id_cleaned":_id})
+        DI1 = doc_temp["disruptiveness"]["DI1"]
+        DI5 = doc_temp["disruptiveness"]["DI5"]
+        DI5nok = doc_temp["disruptiveness"]["DI5nok"]
+        DI1nok = doc_temp["disruptiveness"]["DI1nok"]
+        DeIn = doc_temp["disruptiveness"]["DeIn"]        
+        Breadth = doc_temp["disruptiveness"]["Breadth"]        
+        Depth = doc_temp["disruptiveness"]["Depth"]
+    except Exception as e:
+        n += 1        
+        DI1 = None
+        DI5 = None
+        DI5nok = None
+        DI1nok = None
+        DeIn = None     
+        Breadth = None    
+        Depth = None
         
     list_aid = []
     for author in doc["authorships"]:
@@ -56,9 +79,11 @@ for doc in tqdm.tqdm(docs):
         issn = doc["host_venue"]["issn_l"]
     else:
         issn = None
-    list_of_insertion.append([_id, year, title, _type, oa, cited_by_count, list_aid, concepts,issn,novelty_lee])
+    list_of_insertion.append([_id, year, title, _type, oa, cited_by_count, list_aid, concepts,
+                              issn, novelty_lee, DI1, DI5, DI5nok, DI1nok, DeIn, Breadth, Depth])
     
-df=pd.DataFrame(list_of_insertion,columns=columns)
+df = pd.DataFrame(list_of_insertion,columns=columns)
+df["DI5"].describe()
 df.to_csv("Data/works.csv",index=False)
 
 

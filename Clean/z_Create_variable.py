@@ -5,6 +5,7 @@ import tqdm
 import pickle
 import pymongo
 import pandas as pd
+import numpy as np
 from collections import defaultdict
 from genderComputer import GenderComputer
 
@@ -21,33 +22,17 @@ period = range(1997,2022,1)
 #%%
 
 
-def seniority_all():
-    try:
-        with open('Data/seniority_all_restricted.pickle', 'rb') as f:
-            seniority_all = pickle.load(f)        
-    except:
-        
-        seniority_all = defaultdict(int)
-        
-        docs = collection_all.find()
-        
-        for doc in tqdm.tqdm(docs):
-            for author in doc["authorships"]:
-                try:
-                    id_ = int(re.findall(r'\d+',author["author"]["id"] )[0])
-                    if doc["publication_year"] != None:
-                        if seniority_all[id_] == 0:
-                            seniority_all[id_] = doc["publication_year"]
-                        else:
-                            if seniority_all[id_] > doc["publication_year"]:
-                                seniority_all[id_] = doc["publication_year"]
-                except:
-                    continue
-        with open('Data/seniority_all.pickle', 'wb') as handle:
-            pickle.dump(seniority_all, handle, protocol=pickle.HIGHEST_PROTOCOL)
-    return seniority_all
+with open('Data/seniority_all_restricted.pickle', 'rb') as f:
+    seniority_all_restricted = pickle.load(f)  
 
+with open('Data/dropout_all_restricted.pickle', 'rb') as f:
+    dropout_all = pickle.load(f)   
 
+with open('Data/authors_profile_cleaned.pickle', 'rb') as f:
+    authors_profile_cleaned = pickle.load(f)  
+
+with open('Data/h_index.pickle', 'rb') as f:
+    h_index = pickle.load(f)  
 
 #%%
 
@@ -88,6 +73,21 @@ for year in tqdm.tqdm(period):
                 else:
                     authors_profile[year][id_]["deg_cen"] = 0
             
+            # citation cited_by_count
+
+            try:
+                authors_profile[year][id_]["cited_by_count"] += doc["cited_by_count"]
+            except:
+                authors_profile[year][id_]["cited_by_count"] = doc["cited_by_count"]
+
+            # Append citation
+            
+            try:
+                authors_profile[year][id_]["citation_array"].append(doc["cited_by_count"])
+            except:
+                authors_profile[year][id_]["citation_array"] = [doc["cited_by_count"]]           
+
+            
             # gender
 
             try:
@@ -124,8 +124,8 @@ for year in tqdm.tqdm(period):
             
             n_sen = 0
             # seniority_all
-            if id_ in seniority_all:
-                authors_profile[year][id_]["seniority_all"] = doc["publication_year"] - seniority_all[id_]
+            if id_ in seniority_all_restricted:
+                authors_profile[year][id_]["seniority_all"] = doc["publication_year"] - seniority_all_restricted[id_]
             else:
                 n_sen += 1
                 
@@ -159,6 +159,7 @@ for year in tqdm.tqdm(period):
                         authors_profile[year][i]["deg_cen_comp"] = len(authors_in_comp)/(len(authors_participation) - 1)                    
                     else:
                         authors_profile[year][i]["deg_cen_comp"] = 0
+        
         
 
 
@@ -222,14 +223,20 @@ for doc in tqdm.tqdm(docs):
             authors_profile[year][doc["AID_cleaned"]]["aff_type"] = None  
             
 
-columns = ["year","AID","deg_cen","deg_cen_comp","paper_n","seniority","seniority_all","concepts","DL","switcher","transition","transited_t","gender","aff_id","aff_type"]
+columns = ["year","AID","deg_cen","deg_cen_comp","paper_n","seniority","seniority_all","concepts","DL","switcher","transition","transited_t","gender","aff_id","aff_type","citation","citation_mean"]
 list_of_insertion = []
+
+
+
 for year in tqdm.tqdm(range(1997,2022,1)):    
     for id_ in tqdm.tqdm(authors_profile[year]):             
         deg_cen = authors_profile[year][id_]["deg_cen"]
         deg_cen_comp = authors_profile[year][id_]["deg_cen_comp"]
         paper_n = authors_profile[year][id_]["paper_n"]
         seniority = authors_profile[year][id_]["seniority"]
+        citation = authors_profile[year][id_]["citation"]
+        citation_mean = np.mean(authors_profile[year][id_]["citation_array"])
+
         try:
             seniority_all = authors_profile[year][id_]["seniority_all"]
         except:
@@ -255,9 +262,93 @@ for year in tqdm.tqdm(range(1997,2022,1)):
         except:
             aff_type  = None
         list_of_insertion.append([year, id_, deg_cen, deg_cen_comp, paper_n, seniority, seniority_all, concepts, DL, switcher,
-                           transition, transited_t,gender,aff_id,aff_type])
+                           transition, transited_t,gender,aff_id,aff_type, citation,citation_mean])
+
 
 df=pd.DataFrame(list_of_insertion,columns=columns)
 df.to_csv("Data/variables.csv",index=False)
 
+#%% static df
 
+single_aff = {}
+switcher_aff = defaultdict(list)
+
+for author in tqdm.tqdm(authors_profile_cleaned):
+    list_aff = [authors_profile_cleaned[author][year] for year in authors_profile_cleaned[author]]
+    if list_aff:
+        if len(list(set(list_aff))) == 1:
+            if list_aff[0] == 'other':
+                single_aff[author] = 'only_other'
+            else:
+                single_aff[author] = list_aff[0]
+            
+set(val for val in single_aff.values())  
+
+for year in range(1998,2021):
+    context = list(range(year-1, year+2))
+    query = {str(i)+".aff_type":{"$exists":1,"$ne":None} for i in context }
+    docs = collection_ai_authors.find(query)
+    for doc in tqdm.tqdm(docs):
+        id_ = int(re.findall(r'\d+',doc["AID"] )[0])
+        if doc[str(year-1)]["aff_type"] != doc[str(year)]["aff_type"] and doc[str(year)]["aff_type"] == doc[str(year+1)]["aff_type"]:
+            transition_name = doc[str(year-1)]["aff_type"]  + "_" + doc[str(year)]["aff_type"]
+            switcher_aff[id_].append({"year":year,"transition_name":transition_name})            
+        else:
+            continue
+
+n_multiple = 0
+for author in switcher_aff:
+    if len(switcher_aff[author]) > 1:
+        n_multiple += 1
+        n_education_company = 0
+        for trans in switcher_aff[author]:
+            if trans['transition_name'] == "education_company":
+                n_education_company += 1
+                
+        if n_education_company > 1:
+            print(author,switcher_aff[author])
+
+
+n_edu = 0
+n_edu_single = 0
+n_edu_multiple = 0
+for author in switcher_aff:
+    for trans in switcher_aff[author]:
+        if trans['transition_name'] == "education_company":
+            n_edu += 1
+        if trans['transition_name'] == "education_company" and len(switcher_aff[author]) == 1:
+            n_edu_single += 1
+        if trans['transition_name'] == "education_company" and len(switcher_aff[author]) > 1:
+            n_edu_multiple += 1
+
+
+
+# 7931 switcher, 1140 with multiple transition
+# 1118 with atleast one education_company from them 164(14.6%) with multiple transition (so 954 single education_company transition)
+# 57 education went to company and then came back to education 
+# 10 education went to company and then left again somewhere else
+# 4 education went to company-education-company 
+
+
+columns = ["AID", "seniority","dropout","type"]    
+list_of_insertion = []
+
+for author in tqdm.tqdm(seniority_all_restricted):
+    type_ = "other"
+    if author in switcher_aff:
+        if len(switcher_aff[author]) > 1:
+            type_ = "multiple_transition"
+        else:
+            type_ = switcher_aff[author][0]["transition_name"]
+    elif author in single_aff:
+        type_ = single_aff[author]        
+    list_of_insertion.append([author, seniority_all_restricted[author], dropout_all[author], type_])
+    
+
+df_static = pd.DataFrame(list_of_insertion, columns=columns)
+df_static[df_static["type"]=="multiple_transition"]
+
+df_static.to_csv("Data/author_static.csv",index=False)
+set(df_static["type"])
+df_static["type"].describe()
+df_static["type"].value_counts().to_dict()

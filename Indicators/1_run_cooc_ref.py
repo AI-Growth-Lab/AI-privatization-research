@@ -7,6 +7,7 @@ ref_cooc = novelpy.utils.cooc_utils.create_cooc(
                 year_var="publication_year",
                 var = "referenced_works",
                 sub_var = "journal",
+                time_window = range(2017,2022),
                 weighted_network = True, self_loop = True)
 
 ref_cooc.main()
