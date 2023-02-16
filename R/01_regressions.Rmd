@@ -293,7 +293,7 @@ data_did %>% saveRDS('../../temp/reg_data_did.rds')
 # Diff-in-Diff
 
 ```{r}
-#data_did <- read_rds('../../temp/reg_data_did.rds')
+data_did <- read_rds('../../temp/reg_data_did.rds')
 ```
 
 
@@ -311,13 +311,13 @@ data_did %>% saveRDS('../../temp/reg_data_did.rds')
 fit_did_1 <- lm(citation_fw ~ (type + transited)^2 + year + t + seniority + year + concepts, 
                 data = data_did)
 
-fit_did_2 <- lm(citation_fw ~ (type + transited)^2 + (transited*transited_t)^2 + year + t + seniority + year + concepts, 
+fit_did_2 <- lm(citation_fw ~ (type + transited)^2 + (type + transited_t)^2 + year + t + seniority + year + concepts, 
                 data = data_did)
 
 fit_did_3 <- lm(novelty_fw ~ (type + transited)^2 + year + seniority + year + t + concepts, 
                 data = data_did)
 
-fit_did_4 <- lm(novelty_fw ~ (type + transited)^2 + (transited*transited_t)^2 + year + t + seniority + concepts , 
+fit_did_4 <- lm(novelty_fw ~ (type + transited)^2 + (type + transited_t)^2 + year + t + seniority + concepts , 
                 data = data_did)
 
 # + paper_n ?
