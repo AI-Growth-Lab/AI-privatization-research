@@ -308,16 +308,16 @@ data_did <- read_rds('../../temp/reg_data_did.rds')
 ```{r}
 # fit_did_0 <- lm(citation_rank ~ switcher + field_of_study_name, data = data_did)
 
-fit_did_1 <- lm(citation_fw ~ (type + transited)^2 + year + t + seniority + year + concepts, 
+fit_did_1 <- lm(citation_fw ~ (type + transited)^2 + year + seniority + year + concepts, 
                 data = data_did)
 
-fit_did_2 <- lm(citation_fw ~ (type + transited)^2 + (type + transited_t)^2 + year + t + seniority + year + concepts, 
+fit_did_2 <- lm(citation_fw ~ (type + transited)^2 + (type + transited_t)^2 + year  + seniority + year + concepts, 
                 data = data_did)
 
-fit_did_3 <- lm(novelty_fw ~ (type + transited)^2 + year + seniority + year + t + concepts, 
+fit_did_3 <- lm(novelty_fw ~ (type + transited)^2 + year + seniority + year + concepts, 
                 data = data_did)
 
-fit_did_4 <- lm(novelty_fw ~ (type + transited)^2 + (type + transited_t)^2 + year + t + seniority + concepts , 
+fit_did_4 <- lm(novelty_fw ~ (type + transited)^2 + (type + transited_t)^2 + year + seniority + concepts , 
                 data = data_did)
 
 # + paper_n ?
