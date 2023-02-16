@@ -56,10 +56,10 @@ data_dropout <- data %>%
   ungroup() %>%
   filter(year <= 2019) %>%
   mutate(seniority_bin = case_when(
-      seniority_all <= 5 ~ "1 early",
-      seniority_all > 5 & seniority_all <= 10 ~ "2 mid",
-      seniority_all > 10 & seniority_all <= 15 ~ "3 mid late",
-      seniority_all > 15 ~ "4 late",
+      seniority <= 5 ~ "1 early",
+      seniority > 5 & seniority <= 10 ~ "2 mid",
+      seniority > 10 & seniority <= 15 ~ "3 mid late",
+      seniority > 15 ~ "4 late",
   )
   )
 ```
@@ -81,7 +81,7 @@ data_dropout %>%
 
 ```{r}
 n_dropout <- data_dropout %>%
-  filter(dropout == TRUE, switcher == FALSE) %>%
+  filter(dropout == TRUE, type == 'switcher') %>%
   count(year, seniority_bin) %>% 
   group_by(year) %>%
   mutate(pct = n / sum(n)) %>%
