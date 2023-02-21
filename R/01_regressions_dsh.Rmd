@@ -1,0 +1,401 @@
+---
+title: 'Privatization of AI research: Executing regressions'
+author: "Daniel S. Hain (dsh@business.aau.dk)"
+date: "Updated `r format(Sys.time(), '%B %d, %Y')`"
+output:
+  html_notebook:
+    code_folding: hide
+    df_print: paged
+    toc: false
+    toc_depth: 2
+    toc_float:
+      collapsed: false
+    theme: flatly
+---
+
+```{r setup, include=FALSE}
+# Knitr options
+### Generic preamble
+rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
+gc() #free up memrory and report the memory usage.
+graphics.off()
+
+Sys.setenv(LANG = "en") # For english language
+options(scipen = 5) # To deactivate annoying scientific number notation
+
+### Load packages
+library(tidyverse) # Collection of all the good stuff like dplyr, ggplot2 ect.
+library(magrittr) # For extra-piping operators (eg. %<>%)
+
+# Descriptives
+#library(skimr)
+library(stargazer)
+
+# Viz
+library(patchwork)
+
+# Survival analysis
+library(survival)
+library(survminer)
+library(ggfortify)
+```
+
+# Load data
+
+```{r}
+data <- read_rds('../../temp/data_reg.rds')
+```
+
+
+# Regression data prep
+
+## Sorting etc
+
+```{r}
+# Just to be sure
+data %<>%
+  distinct(AID, year, .keep_all = TRUE) %>%
+  relocate(AID, year, type, transition, transited_t, seniority) 
+```
+
+## Lagged variables
+
+```{r}
+# Decide what to lag
+data %<>%
+  arrange(AID, year) %>%
+  group_by(AID) %>%
+  mutate(
+    across(c(concepts,
+             DL,
+             paper_n, 
+             citation_n, 
+             author_mean,
+             oa_mean, 
+             novelty_mean, 
+             deg_cen, 
+             deg_cen_comp, 
+             novelty_fw, 
+             citation_fw,
+             aff_citation_fw,
+             aff_novelty_fw
+             ), ~ lag(.x, 1))
+  ) %>%
+  ungroup()
+```
+
+```{r}
+# Some last preprocessing
+data %<>%
+  filter(year >= 2000,
+         year <= 2021) %>%
+  mutate(co_author_industry = deg_cen_comp > 0) %>% #,year_min = ifelse(year_min < 2000, 2000, year_min))
+    group_by(AID) %>%
+  mutate(t = 1:n(),
+         t_max = n()) %>%
+  ungroup()
+```
+
+```{r}
+# Check missing data
+data  %>% naniar::gg_miss_var()
+```
+
+```{r}
+# Replace NA. All others are by construction
+data %<>%
+  replace_na(list(DL = 0, concepts = 'unknown'))
+```
+
+
+# Survival analysis
+
+```{r}
+data_surv <- data %>% 
+  # Filter for last observation (=right cernsoring or transition)
+  filter(is.na(transited_t) | transited_t <= 1) %>%
+  group_by(AID) %>%
+  slice_max(order_by = t, n= 1, with_ties = FALSE) %>%
+  ungroup() %>%
+  # Add some variables
+  mutate(auth_star = citation_fw >= 0.9,
+         aff_star = aff_citation_fw >= 0.9,
+         )
+
+
+# Previous filtering approach:
+# filter(  (type == 'education' & year == year_max) | (type == 'switcher' & transition == 1)) %>%
+```
+
+```{r}
+data_surv %>% count(type)
+```
+
+```{r}
+# Surf object
+surv_object <- Surv(time = data_surv$t, event = data_surv$transition)
+```
+
+```{r}
+table(surv_object)
+```
+
+## Kaplan-Meier Method and Log Rank Test
+
+```{r}
+fit_km0 <- survfit(surv_object ~ 1, 
+                   data = data_surv)
+fit_km1 <- survfit(surv_object ~ DL, 
+                   data = data_surv)
+fit_km2 <- survfit(surv_object ~ auth_star, 
+                   data = data_surv)
+fit_km3 <- survfit(surv_object ~ aff_star,
+                   data = data_surv)
+```
+
+```{r}
+p1 <- fit_km0 %>% autoplot() + labs(title= 'KM: baseline')
+p2 <- fit_km1 %>% autoplot() + labs(title= 'KM: DL researcher')
+p3 <- fit_km2 %>% autoplot() + labs(title= 'KM: Star researcher')
+p4 <- fit_km3 %>% autoplot() + labs(title= 'KM: Star institution')
+
+(p1 + p2) / (p3 + p4) +  plot_layout(guides = "collect") & theme(legend.position = 'bottom') & labs(x = 'Time', y = 'Survival Probability')
+```
+
+```{r}
+rm(fit_km0, fit_km1, fit_km2, fit_km3,
+   p1, p2, p3, p4)
+```
+
+
+## Cox Proportional Hazard Model
+
+```{r}
+### Fit Cox proportional hazard model
+set.seed(1337)
+
+#Baseline
+fit_cox0 <- coxph(surv_object ~ seniority + concepts + year,
+                  data = data_surv)
+
+fit_cox1 <- coxph(surv_object ~ seniority + concepts + year 
+                  + DL,
+                  data = data_surv)
+
+fit_cox2 <- coxph(surv_object ~ seniority + concepts + year 
+                  + deg_cen + deg_cen_comp,
+                  data = data_surv)
+
+fit_cox3 <- coxph(surv_object ~ seniority + concepts + year 
+                  + citation_fw + novelty_fw,
+                  data = data_surv)
+
+fit_cox4 <- coxph(surv_object ~ seniority + concepts + year 
+                  + aff_citation_fw,
+                  data = data_surv)
+
+fit_cox5 <- coxph(surv_object ~ seniority + concepts + year 
+                  + DL + deg_cen + deg_cen_comp + citation_fw + novelty_fw + aff_citation_fw,
+                  data = data_surv)
+```
+
+
+```{r}
+#stargazer(fit_cox0, fit_cox1, fit_cox2, fit_cox3, fit_cox4, fit_cox5, type = 'latex', 
+# omit = c( 'concepts', 'year', 'Constant'), out ='../../output/surv_res1.tex')
+```
+
+```{r}
+#stargazer(fit_cox0, fit_cox1, fit_cox2, fit_cox3, fit_cox4, fit_cox5, type = 'text',  omit = c( 'concepts', 'year', 'Constant'))
+```
+
+```{r, results='asis'}
+stargazer(fit_cox0, fit_cox1, fit_cox2, fit_cox3, fit_cox4, fit_cox5, type = 'html', omit = c( 'concepts', 'year', 'Constant'))
+```
+
+```{r}
+#fit_cox5 %>% ggforest(data = data_surv)
+```
+
+```{r}
+#save models
+list(fit_cox0, fit_cox1, fit_cox2, fit_cox3, fit_cox4, fit_cox5) %>% write_rds('../../temp/reg_surv1.rds')
+```
+
+```{r}
+#rm(fit_cox0, fit_cox1, fit_cox2, fit_cox3, fit_cox4, fit_cox5)
+```
+
+# Propensity Score matching 
+
+```{r}
+library(MatchIt)
+```
+
+```{r}
+data_match <- data %>%
+  filter(type == 'education' | type == 'switcher' & transition == 1) %>%
+  select(AID, type, year, aff_id, seniority, paper_n, author_mean, oa_mean, concepts, citation_fw, novelty_fw, aff_citation_fw, aff_novelty_fw) %>%
+  mutate(type = (type %>% factor() %>% as.numeric()) -1,
+         concepts = concepts %>% factor()) %>%
+  drop_na()
+```
+
+```{r}
+# Do the PSM
+set.seed(1337)
+match_out <-  data_match %>% 
+  # Matching
+  matchit(type ~ paper_n + author_mean + oa_mean + concepts + citation_fw + novelty_fw, exact = c('year', 'seniority'),
+          data = ., verbose = FALSE, method = "nearest", ratio = 1) # OR method  "genetic" ... takes forever.....
+```
+
+```{r}
+# GEt the matched pairs
+matched_pairs  <- bind_cols(data_match[row.names(match_out$match.matrix),"AID"] , data_match[match_out$match.matrix,"AID"] ) %>%
+  rename(orig_AID = `AID...1`,
+         match_AID = `AID...2`) 
+```
+
+```{r}
+# construct the matched dataset
+data_did <- matched_pairs %>% 
+  mutate(pair_id = 1:n())
+
+data_did <- data_did %>%
+  select(orig_AID, pair_id) %>%
+  rename(AID = orig_AID) %>%
+  bind_rows(data_did %>%
+  select(match_AID, pair_id) %>%
+  rename(AID = match_AID) ) %>%
+  arrange(pair_id) %>%
+  left_join(data, by = 'AID')
+```
+
+```{r}
+# compute transition point for matched partner
+data_did %<>%
+  group_by(pair_id) %>%
+  mutate(switcher = type == 'switcher',
+         year_transit = max(year_transit, na.rm = TRUE),
+         transition = year == year_transit,
+         transited = year >= year_transit,
+         transited_t = year - year_transit + 1) %>%
+  mutate(across(c(year, concepts, transited), ~ factor(.x))) %>%
+  mutate(transited_t = ifelse(transited_t > 0, transited_t, 0)) %>%
+  drop_na()
+```
+
+```{r}
+data_did %>% saveRDS('../../temp/reg_data_did.rds')
+```
+
+# Diff-in-Diff
+
+```{r}
+data_did <- read_rds('../../temp/reg_data_did.rds')
+```
+
+
+```{r}
+# For the interaction plot code logical to numeric
+# data_did %<>%  mutate(switcher = switcher %>% as.numeric(), transited = transited %>% as.numeric())
+```
+
+
+## Models
+
+```{r}
+# fit_did_0 <- lm(citation_rank ~ switcher + field_of_study_name, data = data_did)
+
+fit_did_1 <- lm(citation_fw ~ (type + transited)^2 + year + seniority + year + concepts, 
+                data = data_did)
+
+fit_did_2 <- lm(citation_fw ~ (type + transited)^2 + (type + transited_t)^2 + year  + seniority + year + concepts, 
+                data = data_did)
+
+fit_did_3 <- lm(novelty_fw ~ (type + transited)^2 + year + seniority + year + concepts, 
+                data = data_did)
+
+fit_did_4 <- lm(novelty_fw ~ (type + transited)^2 + (type + transited_t)^2 + year + seniority + concepts , 
+                data = data_did)
+
+# + paper_n ?
+```
+
+```{r}
+#stargazer(fit_did_1, fit_did_2, fit_did_3, fit_did_4, type = 'latex', omit = c( 'concepts', 'year', 'Constant'), out ='../../output/did_res1.tex')
+```
+
+```{r}
+stargazer(fit_did_1, fit_did_2, fit_did_3, fit_did_4, type = 'text', omit = c('concepts', 'year', 'Constant'))
+```
+
+```{r, results='asis'}
+stargazer(fit_did_1, fit_did_2, fit_did_3, fit_did_4, type = 'html', omit = c( 'concepts', 'year', 'Constant'))
+```
+
+
+<!---
+### Template new plotting model
+
+```{r}
+#library(interplot)
+#fit_did_2 %>% interplot(var1 ="switcher", var2 = "transited_t", hist = TRUE) 
+```
+
+```{r}
+library(interactions)
+fit_did_2 %>% interact_plot(pred = transited_t, modx = switcher,
+                            interval = TRUE) +
+  theme(legend.position = 'bottom')
+```
+
+```{r}
+ggsave('../../output/fig_interaction_1.png', width = 10, height = 7.5, units = 'cm')
+```
+
+
+```{r}
+library(interactions)
+fit_did_2 %>% interact_plot(pred = transited_t, modx = switcher,
+                            interval = TRUE, linearity.check = TRUE)
+```
+
+
+--->
+
+# Descriptives
+
+<!---
+
+## All data
+
+```{r, results='asis'}
+data %>% select(seniority, deg_cen, deg_cen_comp, co_author_industry, DL, paper_n, author_mean, citation_fw, novelty_fw, aff_citation_fw, aff_novelty_fw) %>% as.data.frame() %>%
+  stargazer(summary = TRUE, type = 'html')
+```
+
+## By university vs. switcher career
+
+```{r, results='asis'}
+data %>% 
+  select(type, seniority, deg_cen, deg_cen_comp, co_author_industry, DL, paper_n, author_mean, citation_fw, novelty_fw, aff_citation_fw, aff_novelty_fw) %>%
+  as.data.frame() %>%
+  split(.$type) %>% 
+  walk(~ stargazer(., summary = TRUE, type = 'html'))
+```
+
+
+```{r}
+data %>% 
+  filter(transited_t <= 0) %>%
+  mutate(auth_star = citation_fw >= 0.9,
+         aff_star = aff_citation_fw >= 0.9)
+```
+
+
+-->
+
+
+
