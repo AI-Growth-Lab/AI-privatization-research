@@ -287,13 +287,13 @@ data_did %<>%
 ```
 
 ```{r}
-data_did %>% saveRDS('../../temp/reg_data_did.rds')
+data_did %>% saveRDS('../temp_reg/reg_data_did.rds')
 ```
 
 # Diff-in-Diff
 
 ```{r}
-data_did <- read_rds('../../temp/reg_data_did.rds')
+data_did <- read_rds('../temp_reg/reg_data_did.rds')
 ```
 
 
