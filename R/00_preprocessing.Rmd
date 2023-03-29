@@ -35,8 +35,12 @@ library(magrittr) # For extra-piping operators (eg. %<>%)
 ```{r}
 data <- read_csv('../../input/works.csv') %>%
   mutate(id = id %>% as.character()) %>%
-  select(-title, -issn)
+  select(-title, -issn,
+         -concepts, -concepts_v1, -concepts_v3,
+         -DI1, DI5, DI1nok, DI5nok, DeIn, Breadth, Depth) %>%
+  rename(concepts = concepts_v2)
 ```
+
 
 ## Extract citations, novelty, OA
 
@@ -54,8 +58,8 @@ indicators <- data %>% select(list_aid, year, list_aid, oa, cited_by_count, nove
     citation_mean = cited_by_count %>% mean(na.rm = TRUE),
     citation_max = cited_by_count %>% max(),
     oa_mean = oa %>% mean(),
-    novelty_mean = novelty_lee %>% mean(na.rm = TRUE),
-    # novelty_max = novelty_lee %>% max()
+    novelty_mean = novelty_lee %>% mean(na.rm = TRUE)
+    #novelty_max = novelty_lee %>% max()
   ) %>%
   ungroup()
 ```
@@ -72,9 +76,10 @@ rm(indicators)
 ## Extract concepts
 
 ```{r}
-concepts <- data %>% select(id, year, list_aid, concepts) %>%
-    mutate(concepts = concepts %>% str_split('\n')) %>% 
-    unnest(concepts)
+concepts_paper <- data %>% select(id, year, list_aid, concepts) %>%
+  mutate(concepts = concepts %>% str_split('\n')) %>% 
+  unnest(concepts) %>%
+  drop_na()
 ```
 
 ```{r}
@@ -83,67 +88,89 @@ rm(data)
 
 
 ```{r}
-concepts %>% count(concepts, sort = TRUE)
+concepts_paper %>% count(concepts, sort = TRUE) %>% 
+  mutate(pct = percent_rank(n))
 ```
+
 
 ### Concept reduction
 
 ```{r}
-# Define the number of fields to be included
+# ## Select by percentage
+# pct_min = 0.5
+# 
+# concepts_main <- concepts %>% count(concepts, sort = TRUE) %>% 
+#   filter(percent_rank(n) >= pct_min) %>%
+#   drop_na()
+
+## Select by number
 n_concepts <- 100
 n_start = 1
 
 # Extract main concepts
-concepts_main <- concepts %>% count(concepts, sort = TRUE) %>%
+concepts_main <- concepts_paper %>% 
+  count(concepts, sort = TRUE) %>%
   slice(n_start:(n_start + n_concepts))
+
+# # General concepts without informative value
+concepts_drop <- c('algorithm')
+
+concepts_main %<>%
+  filter(!(concepts %in% concepts_drop ))
 ```
 
 ```{r}
-#Update author dyn
-concepts %<>%
-  mutate(concepts = ifelse(concepts %in% (concepts_main %>% pull(concepts)), concepts, 'others'))
-```
+## Update author dyn
+# # Solution 1: Set to others
+# concepts_paper %<>%
+#   mutate(concepts = ifelse(concepts %in% (concepts_main %>% pull(concepts)), concepts, 'others')) 
 
-### Main Concepts 
-
-```{r}
-# GEneral concepts without informative value
-concept_drop <- tibble(
-  concepts =  c('computer science', 'artificial intelligence', 'machine learning')
-)
-```
-
-```{r}
-# Alternative 1: only 1 concept per author -> Q: Maybe author/year
-concepts_1 <- concepts %>%
-  anti_join(concept_drop, by = 'concepts')
-```
-
-```{r}
-concepts %>% write_rds('../../temp/paper_concepts.rds')
+# Solution 2
+concepts_paper %<>%
+  semi_join(concepts_main, by = 'concepts')
 ```
 
 
 ```{r}
-rm(concept_drop, concepts_main, n_start, n_concepts,
-   concepts)
+concepts_paper %>% write_rds('../../temp/paper_concepts.rds')
+```
+
+```{r}
+concepts_author <- concepts_paper
+```
+
+```{r}
+rm(concepts_main,concepts_drop, n_start, n_concepts, concepts)
 ```
 
 
 ```{r}
- concepts_1 %<>%
+ concepts_author %<>%
   mutate(list_aid = list_aid %>% str_split('\n')) %>% 
   unnest(list_aid) %>%
-  rename(AID = list_aid) 
+  rename(AID = list_aid) %>%
+  drop_na()
 ```
 
 ```{r}
-concepts_1 %<>%
+# Extract main concept per author
+concepts_author_main <- concepts_author %>%
+  count(AID, concepts) %>%
+  group_by(AID) %>% 
+  slice_max(order_by = n, n = 1, with_ties = FALSE) %>% 
+  ungroup() %>%
+  select(-n)
+
+concepts_author_main %>% write_rds('../../temp/author_concepts_main.rds')
+```
+
+```{r}
+concepts_author %<>%
   count(AID, year, concepts) 
 ```
 
 ```{r}
-concepts_1 %<>%
+concepts_author %<>%
   group_by(AID, year) %>% 
   slice_max(order_by = n, n = 1, with_ties = FALSE) %>% 
   ungroup() %>%
@@ -151,37 +178,22 @@ concepts_1 %<>%
 ```
 
 ```{r}
-concepts_1 %>% write_rds('../../temp/author_concepts.rds')
-```
-
-<!--- 
-### Concept clusters (alternative solution, work in progress, not really good results yet)
-
-```{r}
-concepts_wide <- concepts %>%
-  select(id, concepts) %>%
-  count(id, concepts) %>%
-  pivot_wider(names_from = concepts, values_from = n, values_fill = 0, names_prefix = 'con_')
+concepts_author %<>%
+  group_by(AID) %>%
+    arrange(AID, year) %>%
+    fill(concepts, .direction = "downup") %>%
+  ungroup() 
 ```
 
 ```{r}
-res_pca <- concepts_wide %>% 
-  column_to_rownames(id) %>%
-  PCA(scale.unit = FALSE, graph = FALSE)
+concepts_author %>%
+  count(concepts, sort = TRUE)
 ```
 
 ```{r}
-res_hcpc <- res_pca %>% 
-  HCPC(nb.clust = -1, #  self determined: higher relative loss of inertia
-       graph = FALSE) 
+concepts_author %>% write_rds('../../temp/author_concepts.rds')
 ```
 
-```{r}
-res_km <- concepts_wide  %>% 
-  column_to_rownames(id) %>%
-  kmeans(centers = 3)  
-```
---->
 
 ```{r}
 # Delete all objects
@@ -247,7 +259,7 @@ author_range %<>%
   filter(
     year_min >= 1950,
     year_max >= 2010, # latest year observed
-    year_n >= 4, # Number of years observed
+    year_n >= 3, # Number of years observed
     year_range >= 4, # Number of years observed
     pct_obs >= 0.5, # observed at least half of the time
     ) 
@@ -263,7 +275,7 @@ data_static %<>%
 rm(author_range)
 ```
 
-Now we already filtr the panel data for our selection, so we dont have to do the lenghty preprocessing for all. 
+Now we already filter the panel data for our selection, so we dont have to do the lenghty preprocessing for all. 
 Note: We do a semi and not an inner_join, since we want to join the static data into the panel only after the full range of years in the panel is constructed.
 
 ```{r}
@@ -276,16 +288,12 @@ data %<>% semi_join(data_static, by = 'AID')
 
 ```{r}
 # indicators
-data %<>% left_join(read_rds('../../temp/author_indicators.rds') %>%
-                      select(AID, year, paper_n, author_mean, citation_n, oa_mean, novelty_mean),
-                    by = c('AID', 'year'))
+data %<>% left_join(read_rds('../../temp/author_indicators.rds') %>% select(AID, year, paper_n, author_mean, citation_n, oa_mean, novelty_mean), by = c('AID', 'year'))
 ```
 
 ```{r}
 # concepts
-data %<>% left_join(read_rds('../../temp/author_concepts.rds') %>%
-                      select(AID, year, concepts),
-                    by = c('AID', 'year'))
+data %<>% left_join(read_rds('../../temp/author_concepts.rds') %>% select(AID, year, concepts), by = c('AID', 'year'))
 ```
 
 ## Make complete panel
@@ -294,8 +302,8 @@ data %<>% left_join(read_rds('../../temp/author_concepts.rds') %>%
 data %<>%   
   group_by(AID) %>%
     complete(year = full_seq(min(year):max(year), 1)) %>%
-    arrange(year) %>%
-    fill(aff_id, aff_type, DL, .direction = "downup") %>%
+    arrange(AID, year) %>%
+    fill(aff_id, aff_type, DL, concepts, .direction = "downup") %>%
   ungroup() 
 ```
 
@@ -319,6 +327,19 @@ data %<>%
 ```{r}
 data %>% naniar::gg_miss_var()
 ```
+
+
+```{r}
+# Replace again missing
+data %<>%   
+  group_by(AID) %>%
+    arrange(AID, year) %>%
+    fill(aff_id, aff_type, DL, concepts,
+         citation_n, novelty_mean,
+         .direction = "downup") %>%
+  ungroup() 
+```
+
 
   
 ```{r}
@@ -409,11 +430,13 @@ data %<>%
              novelty_fw, 
              citation_fw,
              aff_citation_fw,
-             aff_novelty_fw), ~  zoo::rollmean(.x, 2, fill = NA, align = "right"))) %>% 
+             aff_novelty_fw), ~  zoo::rollmean(.x, 2, fill = c(0, NA, NA), align = "right"))) %>% 
   ungroup()
 
 #  Alternative slider::slide_dbl(~mean(.x), .before = 2))
 ```
+
+
 
 
 ## some other small thingies
@@ -430,5 +453,8 @@ data %<>%
 data %>% write_rds('../../temp/data_reg.rds')
 ```
 
+```{r}
+sessionInfo()
+```
 
 
