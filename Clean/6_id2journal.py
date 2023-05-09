@@ -40,7 +40,7 @@ def create_journal_coll():
     list_of_insertion = []
     
     collection.create_index([ ("id_cleaned",1) ])      
-    collection.create_index([ ("pbulication_year",1) ])      
+    collection.create_index([ ("publication_year",1) ])      
 
     for doc in tqdm.tqdm(docs):
         if len(doc["referenced_works"]) > 0:

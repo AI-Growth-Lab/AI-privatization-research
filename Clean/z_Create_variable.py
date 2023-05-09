@@ -2,6 +2,7 @@
 
 import re
 import tqdm
+import json
 import pickle
 import pymongo
 import pandas as pd
@@ -33,8 +34,11 @@ with open('Data/authors_profile_cleaned.pickle', 'rb') as f:
 
 with open('Data/h_index.pickle', 'rb') as f:
     h_index = pickle.load(f)  
+    
+with open('Data/id2concepts.pickle', 'rb') as f:
+    id2concepts = pickle.load(f)  
 
-#%%
+#%% 
 
 authors_profile = defaultdict(lambda: defaultdict(dict))
 seniority = {}
@@ -46,7 +50,8 @@ for year in tqdm.tqdm(period):
         authors_participation = []
         
         try:
-            concepts = [concept["display_name"].lower() for concept in doc["concepts"]]
+            #concepts = [concept["display_name"].lower() for concept in doc["concepts"]]
+            concepts = id2concepts[doc["id_cleaned"]]
         except:
             pass
 
@@ -165,7 +170,8 @@ for year in tqdm.tqdm(period):
 
 #{id_cleaned:4212529325}
 
-# Add switcher, transited in observable carrier yes/no, transited_t since when , transition (when)
+
+#%% Add switcher, transited in observable carrier yes/no, transited_t since when , transition (when)
 
 transition_dict = {year:defaultdict(int) for year in range(1998,2021)}
 for year in range(1998,2021):
@@ -273,17 +279,22 @@ df.to_csv("Data/variables.csv",index=False)
 single_aff = {}
 switcher_aff = defaultdict(list)
 
-for author in tqdm.tqdm(authors_profile_cleaned):
-    list_aff = [authors_profile_cleaned[author][year] for year in authors_profile_cleaned[author]]
-    if list_aff:
-        if len(list(set(list_aff))) == 1:
-            if list_aff[0] == 'other':
-                single_aff[author] = 'only_other'
-            else:
-                single_aff[author] = list_aff[0]
+authors = collection_ai_authors.find()
+for author in tqdm.tqdm(authors):
+    list_aff = []
+    for year in range(1997,2021):
+        try:
+            list_aff.append(author[str(year)]["aff_type"])
+        except:
+            continue
+    if len(set(list_aff)) == 1:
+        if list_aff[0] == "other":
+            single_aff[author["AID_cleaned"]] = "only_other"
+        else:
+            single_aff[author["AID_cleaned"]] = list_aff[0]
+        
+s = set( val for val in single_aff.values())
             
-set(val for val in single_aff.values())  
-
 for year in range(1998,2021):
     context = list(range(year-1, year+2))
     query = {str(i)+".aff_type":{"$exists":1,"$ne":None} for i in context }
@@ -322,7 +333,6 @@ for author in switcher_aff:
             n_edu_multiple += 1
 
 
-
 # 7931 switcher, 1140 with multiple transition
 # 1118 with atleast one education_company from them 164(14.6%) with multiple transition (so 954 single education_company transition)
 # 57 education went to company and then came back to education 
@@ -335,6 +345,11 @@ list_of_insertion = []
 
 for author in tqdm.tqdm(seniority_all_restricted):
     type_ = "other"
+    doc = collection_ai_authors.find_one({"AID_cleaned":author})
+#    try:
+#        ai = doc["true_ai"]
+#    except:
+#        ai = 0
     if author in switcher_aff:
         if len(switcher_aff[author]) > 1:
             type_ = "multiple_transition"
@@ -345,10 +360,13 @@ for author in tqdm.tqdm(seniority_all_restricted):
     list_of_insertion.append([author, seniority_all_restricted[author], dropout_all[author], type_])
     
 
+
+
 df_static = pd.DataFrame(list_of_insertion, columns=columns)
 df_static[df_static["type"]=="multiple_transition"]
+df_static[df_static["ai"]==1]
 
 df_static.to_csv("Data/author_static.csv",index=False)
 set(df_static["type"])
 df_static["type"].describe()
-df_static["type"].value_counts().to_dict()
+df_static[df_static["ai"]==1]["type"].value_counts().to_dict()

@@ -47,7 +47,21 @@ def get_ai(keywords,comb = 1,tresh = False):
     list_of_insertion = []
 
 
-
+def add_ai_key_works():
+    Client = pymongo.MongoClient("mongodb://localhost:27017")
+    db = Client["openAlex"]
+    collection = db["works"]
+    collection_ai = db["works_ai_2_False"]
+    
+    docs = collection_ai.find({},no_cursor_timeout=True).skip(62000+1555299)
+    list_of_insertion = []
+    for doc in tqdm.tqdm(docs):
+        list_of_insertion.append(pymongo.UpdateOne({'id_cleaned':  doc["id_cleaned"] }, {'$set': {'true_ai': 1}}))
+    
+        if len(list_of_insertion) == 1000:
+            collection.bulk_write(list_of_insertion)
+            list_of_insertion = []
+    collection.bulk_write(list_of_insertion)
 
 if __name__ == "__main__":
     # Number of keywords we want in a paper

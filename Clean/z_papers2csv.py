@@ -2,10 +2,11 @@
 import re
 import tqdm
 import json
+import pickle
 import pymongo
 import pandas as pd
 
-period = range(2000,2022,1)
+period = range(1997,2022,1)
 
 Client = pymongo.MongoClient("mongodb://localhost:27017")
 db = Client["openAlex"]
@@ -18,6 +19,10 @@ data = []
 for year in tqdm.tqdm(period):
     with open("Results/lee/concepts/{}.json".format(year),"r") as f:
       data += json.load(f)
+      
+with open('Data/id2concepts.pickle', 'rb') as f:
+    id2concepts = pickle.load(f)  
+
 data = {i["id_cleaned"]:i["concepts_lee"] for i in data}
 
 columns = ["id", "year", "title", "type", "oa", "cited_by_count", "list_aid", "concepts", "issn",
@@ -71,7 +76,7 @@ for doc in tqdm.tqdm(docs):
         list_aid = None
     
     try:
-        concepts = [concept["display_name"].lower() for concept in doc["concepts"]]
+        concepts = [concept.lower() for concept in id2concepts[doc["id_cleaned"]]]
     except:
         pass    
     concepts = "\n".join(concepts)

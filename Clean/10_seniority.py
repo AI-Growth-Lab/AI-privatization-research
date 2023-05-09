@@ -61,6 +61,7 @@ df = pd.DataFrame(list_of_insertion,columns=columns)
 df["dropout"].hist(bins=23)
 df.to_csv("Data/seniority_dropout.csv",index=False)
 
+df = pd.read_csv("Data/seniority_dropout.csv")
 
 
     
