@@ -16,7 +16,7 @@ Client = pymongo.MongoClient("mongodb://localhost:27017")
 db = Client["openAlex"]
 collection_ai_name = "works_ai_2_False"
 collection_ai = db[collection_ai_name]
-collection_ai_authors = db["author_profile_ai"]
+collection_ai_authors = db["author_profile_true_ai"]
 period = range(2000,2022,1)
 
 #%% Transition plot
@@ -241,7 +241,8 @@ sorted(transition[2020], key=transition[2020].get, reverse=True)[:5]
 columns = ["source","target","value"]
 list_of_insertion = []
 for i in unique_tags:
-    list_of_insertion.append(["education",i,0])
+    if i != "education":
+        list_of_insertion.append(["education",i,0])
 
 df = pd.DataFrame(list_of_insertion,columns=columns)
 df.index = df["target"]
@@ -255,10 +256,7 @@ for year in range(2000,2021):
         if doc[str(year-1)]["aff_type"] != doc[str(year)]["aff_type"] and doc[str(year)]["aff_type"] == doc[str(year+1)]["aff_type"]:
             transition_name = doc[str(year-1)]["aff_type"]  + "_" + doc[str(year)]["aff_type"]
             if doc[str(year-1)]["aff_type"] == "education":
-                df.at[doc[str(year)]["aff_type"],"value"] += 1
-        elif doc[str(year-1)]["aff_type"] == doc[str(year)]["aff_type"] and doc[str(year)]["aff_type"] == doc[str(year+1)]["aff_type"]:
-            if doc[str(year-1)]["aff_type"] == "education":
-                df.at[doc[str(year)]["aff_type"],"value"] += 1        
+                df.at[doc[str(year)]["aff_type"],"value"] += 1    
         else:
             continue
 

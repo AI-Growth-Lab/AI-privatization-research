@@ -1,0 +1,285 @@
+---
+title: 'Fig1'
+author: "Kevin Wirtz (kevin.wirtz@unistra.fr)"
+date: "Updated `r format(Sys.time(), '%B %d, %Y')`"
+output:
+  html_notebook:
+    code_folding: hide
+    df_print: paged
+    toc: true
+    toc_depth: 2
+    toc_float:
+      collapsed: false
+    theme: flatly
+---
+
+```{r setup, include=FALSE}
+
+rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
+gc() #free up memrory and report the memory usage.
+graphics.off()
+
+Sys.setenv(LANG = "en") # For english language
+options(scipen = 5) # To deactivate annoying scientific number notation
+
+library(tidyverse) # Collection of all the good stuff like dplyr, ggplot2 ect.
+library(ggalluvial)
+library(cowplot)
+library(ggpubr)
+library(magick)
+```
+
+# Fig1: A #### Publication
+```{r} 
+df <- read_csv("../Data/Fig1_a.csv")
+```
+```{r} 
+
+#png(file="../Data/Fig1_a.png", width=4, height=2.5,units="in",res=600)
+
+# Define a function that creates a plot
+par(mar = c(4,4,4,4) + 0.3)              # Additional space for second y-axis
+  
+plot(df$year, df$ai_publications, type = "l", ylab="N papers", xlab = "Year",
+     pch = 16, col = "#1f77b4",lwd=2,
+     cex.main=0.5, cex.lab=0.5, cex.axis=0.5)              # Create first plot
+par(new = TRUE)                             # Add new plot
+plot(df$year, df$share, type = "l",
+     pch = 17, col = "#ff7f0e", lwd=2,           # Create second plot without axes
+     axes = FALSE, xlab = "", ylab = "",
+     cex.main=0.5, cex.lab=0.5, cex.axis=0.5 )
+axis(side = 4, at = pretty(range(df$share)),cex.axis=0.5)      # Add second axis
+mtext("Share", side = 4, line = 3,cex = 0.5)  
+  
+par(xpd=TRUE)
+legend("top", legend = c("N papers", "Share"),inset=c(0,-0.2), col = c("#1f77b4", "#ff7f0e"),  lty = c(1, 1), bty = "n", horiz = TRUE, cex = 0.5)
+
+#dev.off()
+
+```
+
+```{r} 
+
+oma2 <- c(0.3,0,0,0.3)
+
+colors <- c("AI publications" = "#1f77b4", "share OpenAlex" = "#ff7f0e")
+
+
+figa = ggplot(df, aes(x = year)) + 
+  geom_line(linewidth=1.25,aes(y = ai_publications, color='ai_publications')) + 
+  geom_line(linewidth=1.25,aes(y = share*6768480, color='ai_share')) +
+  scale_color_manual(name = "Group",
+                     values = c( "ai_publications" = "#1f77b4", "ai_share" = "black"),
+                     labels = c( "AI publications","Share AI publications")) +
+  labs(x = "Year",
+         y = "Share",
+         color = "Legend") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 6),
+      axis.text.y = element_text(size = 6),
+      axis.title.x = element_text(size = 6),
+      axis.title.y = element_text(size = 6),
+      panel.border = element_rect(colour = "black", fill=NA, size=0.75),
+      plot.margin = unit(oma2, "cm"),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      panel.background = element_blank(),
+      legend.key=element_blank(),
+      legend.title=element_blank(),
+      legend.position="top",
+      legend.text=element_text(size = 6)) +
+  scale_y_continuous(
+    name = "Number of publications",
+    sec.axis = sec_axis(~./6768480, name="Share")
+  )
+
+figa
+
+```
+
+# Fig1: B #### Solo company
+```{r} 
+
+df <- read_csv("../Data/Fig1_b.csv")
+
+```
+
+```{r} 
+oma2 <- c(0.3,0,0,0.3)
+
+colors <- c("Solo authors" = "#1f77b4", "Company participation" = "#ff7f0e")
+
+
+figb = ggplot(df, aes(x = year)) + 
+  geom_line(size=1.25,aes(y = share_solo_authors, color='share_solo_authors')) + 
+  geom_line(size=1.25,aes(y = share_companies*3, color='share_companies')) +
+  scale_color_manual(name = "Group",
+                     values = c( "share_solo_authors" = "#1f77b4", "share_companies" = "#ff7f0e"),
+                     labels = c( "Comp participation","Share solo aut")) +
+  labs(x = "Year",
+         y = "Share",
+         color = "Legend") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 6),
+      axis.text.y = element_text(size = 6),
+      axis.title.x = element_text(size = 6),
+      axis.title.y = element_text(size = 6),
+      panel.border = element_rect(colour = "black", fill=NA, size=0.75),
+      plot.margin = unit(oma2, "cm"),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      panel.background = element_blank(),
+      legend.key=element_blank(),
+      legend.title=element_blank(),
+      legend.position="top",
+      legend.text=element_text(size = 6)) +
+  scale_y_continuous(
+    name = "Share solo aut",
+    sec.axis = sec_axis(~./3, name="Share comp")
+  )
+
+figb
+```
+```{r} 
+oma2 <- c(0.3,0,0,0.3)
+
+colors <- c("Solo authors" = "#1f77b4", "Company participation" = "#ff7f0e")
+
+
+figb = ggplot(df, aes(x = year)) + 
+  geom_line(size=1.25,aes(y = share_solo_authors, color='share_solo_authors')) + 
+  geom_line(size=1.25,aes(y = share_companies, color='share_companies')) +
+  scale_color_manual(name = "Group",
+                     values = c( "share_solo_authors" = "#1f77b4", "share_companies" = "#ff7f0e"),
+                     labels = c( "Comp participation","Share solo aut")) +
+  labs(x = "Year",
+         y = "(%)",
+         color = "Legend") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 6),
+      axis.text.y = element_text(size = 6),
+      axis.title.x = element_text(size = 6),
+      axis.title.y = element_text(size = 6),
+      panel.border = element_rect(colour = "black", fill=NA, size=0.75),
+      plot.margin = unit(oma2, "cm"),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      panel.background = element_blank(),
+      legend.key=element_blank(),
+      legend.title=element_blank(),
+      legend.position="top",
+      legend.text=element_text(size = 6)) 
+figb
+```
+
+# Fig1: C #### Flow
+```{r} 
+
+df <- read_csv("../Data/Fig1_c.csv")
+
+```
+```{r} 
+oma2 <- c(0.3,0,0,0.3)
+
+figc = ggplot(df, aes(x = year)) + 
+  geom_line(size=1.25,aes(y = education_company, color='education_company')) + 
+  geom_line(size=1.25,aes(y = company_education, color='company_education')) +
+  scale_color_manual(name = "Group",
+                     values = c( "education_company" = "blue", "company_education" = "red"),
+                     labels = c( "Comp to edu","Edu to comp")) +
+  labs(x = "Year",
+         y = "Number of researcher",
+         color = "Legend") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 6),
+      axis.text.y = element_text(size = 6),
+      axis.title.x = element_text(size = 6),
+      axis.title.y = element_text(size = 6),
+      panel.border = element_rect(colour = "black", fill=NA, size=0.75),
+      plot.margin = unit(oma2, "cm"),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      panel.background = element_blank(),
+      legend.key=element_blank(),
+      legend.title=element_blank(),
+      legend.position="top",
+      legend.text=element_text(size = 6)) 
+figc
+```
+
+
+# Fig1: D #### Sanki
+```{r} 
+
+df <- read_csv("../Data/Fig1_d.csv")
+
+```
+
+
+```{r} 
+ggplot(data = vaccinations,
+       aes(axis1 = survey, axis2 = response, y = freq)) +
+  geom_alluvium(aes(fill = response)) +
+  geom_stratum() +
+  geom_text(stat = "stratum",
+            aes(label = after_stat(stratum))) +
+  scale_x_discrete(limits = c("Survey", "Response"),
+                   expand = c(0.15, 0.05)) +
+  theme_void()
+
+```
+```{r} 
+figd <- ggplot(data = df,
+       aes(axis1 = education, axis2 = company, y = value)) +
+  geom_alluvium(aes(fill = company)) +
+  geom_stratum() +
+  geom_text(stat = "stratum",
+            aes(label = after_stat(stratum)),
+            size= 1.75) +
+  scale_x_discrete(limits = c("education", "company"),
+                   expand = c(0.15, 0.05)) +
+  theme_void()+
+  theme(legend.position = "none")
+
+figd
+
+```
+
+# Fig1: Assemble ####
+```{r} 
+
+
+fig1 = ggdraw() +
+  draw_plot(figa, x=0, y=1.25/2, width=0.65/2, height=1.25/3)+
+  draw_plot(figb, x=1/3, y=1.25/2, width=0.65/2, height=1.25/3)+
+  draw_plot(figc, x=2/3, y=1.25/2, width=0.65/2, height=1.25/3)+
+  draw_plot(figd, x=0/3, y=-0.4/2, width=2/2, height=2.4/3)+
+  draw_plot_label(label=c("A","B", "C", "D"),x=c(0, 0.35, 0.70, 0),y=c(0.99, 0.99, 0.99,0.65), 
+                  size = 10) +
+theme(plot.margin = margin(0.1,0.1,2,0.1, "cm")) 
+
+fig1
+
+```
+```{r} 
+
+figure <- ggarrange(figb, figb, figc, figd,
+                    labels = c("A", "B", "C","D"),
+                    ncol = 2, nrow = 2)
+figure
+
+ggarrange(
+                  # First row with line plot
+  # Second row with box and dot plots
+  ggarrange(figb, figb,figc, ncol = 3, labels = c("A","B", "C")),
+  figd,
+  nrow = 2, 
+  labels = "D"       # Label of the line plot
+  ) 
+
+```
+
+
+```{r}
+pdf(file="../Data/Fig1.pdf", width=8, height=5, family="Helvetica", pointsize=6)
+fig1
+dev.off()
+```
+
+

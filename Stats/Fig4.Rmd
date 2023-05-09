@@ -1,0 +1,93 @@
+---
+title: 'Fig''
+author: "Kevin Wirtz (kevin.wirtz@unistra.fr)"
+date: "Updated `r format(Sys.time(), '%B %d, %Y')`"
+output:
+  html_notebook:
+    code_folding: hide
+    df_print: paged
+    toc: true
+    toc_depth: 2
+    toc_float:
+      collapsed: false
+    theme: flatly
+---
+
+```{r setup, include=FALSE}
+
+rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
+gc() #free up memrory and report the memory usage.
+graphics.off()
+
+Sys.setenv(LANG = "en") # For english language
+options(scipen = 5) # To deactivate annoying scientific number notation
+
+library(ggplot2)
+library(tidyverse)
+library(lubridate)
+library(data.table)
+
+```
+
+# Fig1: A ####
+```{r} 
+dt <- fread("../Data/Fig4_a.csv")
+```
+```{r} 
+counts <- dt[, .(count = .N), by = dropout]
+setorder(counts, dropout)
+counts[, cum_value := cumsum(count)]
+counts$left <- rev(cumsum(rev(counts$count)))
+counts$share_leaving <- counts$count/counts$left
+counts$share_leaving_py <- counts$count/sum(counts$count)
+```
+
+```{r} 
+oma2 <- c(0.3,0,0,0.3)
+
+
+figa = ggplot(counts, aes(x = dropout)) + 
+  geom_line(size=1.25,aes(y = share_leaving), color= "#1f77b4") +
+  ggtitle("Share of researchers leaving on researchers left") +
+  labs(x = "Year",
+         y = "(%)") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 6),
+      axis.text.y = element_text(size = 6),
+      axis.title.x = element_text(size = 6),
+      axis.title.y = element_text(size = 6),
+      panel.border = element_rect(colour = "black", fill=NA, size=0.75),
+      plot.margin = unit(oma2, "cm"),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      panel.background = element_blank()) 
+figa
+```
+
+```{r}
+pdf(file="../Data/Fig2.pdf", width=8, height=5, family="Helvetica", pointsize=6)
+figa
+dev.off()
+```
+
+```{r} 
+oma2 <- c(0.3,0,0,0.3)
+
+
+figb = ggplot(counts, aes(x = dropout)) + 
+  geom_line(size=1.25,aes(y = share_leaving_py), color="#ff7f0e") +
+  ggtitle("Share of researchers leaving on all researchers") +
+  labs(x = "Year",
+         y = "(%)") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 6),
+      axis.text.y = element_text(size = 6),
+      axis.title.x = element_text(size = 6),
+      axis.title.y = element_text(size = 6),
+      panel.border = element_rect(colour = "black", fill=NA, size=0.75),
+      plot.margin = unit(oma2, "cm"),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      panel.background = element_blank()) 
+figb
+```
+
+

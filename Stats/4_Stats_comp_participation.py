@@ -8,8 +8,8 @@ from plotly.offline import download_plotlyjs, init_notebook_mode,  plot
 
 Client = pymongo.MongoClient("mongodb://localhost:27017")
 db = Client["openAlex"]
-collection_ai_name = "works_ai_2_False"
-collection_ai = db[collection_ai_name]
+collection = db["works"]
+collection_ai = db["works_ai_2_False"]
 collection_ai_authors = db["author_profile_ai"]
 period = range(2000,2022,1)
 
@@ -26,24 +26,28 @@ df_all.index = list(period)
 df_com = pd.DataFrame(np.zeros(shape = (len( list(period)),2)), index = list(period),columns = ["Company","Total"])
 
 
-for year in tqdm.tqdm(period):
-    docs = collection_ai.find({"publication_year":year})
-    for doc in tqdm.tqdm(docs):
-        comp_part = False
-        df_com.at[year,"Total"] += 1
-        if doc["authorships"]:
-            for author in doc["authorships"]:
-                for inst in author["institutions"]:
-                    try:
-                        if inst["type"] == "company":
-                            comp_part = True
-                    except:
-                        continue
-        if comp_part == True:
-            df_com.at[year,"Company"] += 1
+docs = collection_ai.find()
+
+
+for doc in tqdm.tqdm(docs):
+    year = doc["publication_year"]
+    if year:
+        if year >= 2000 and year< 2022:
+            comp_part = False
+            df_com.at[year,"Total"] += 1
+            if doc["authorships"]:
+                for author in doc["authorships"]:
+                    for inst in author["institutions"]:
+                        try:
+                            if inst["type"] == "company":
+                                comp_part = True
+                        except:
+                            continue
+            if comp_part == True:
+                df_com.at[year,"Company"] += 1
 
 share_df_com = pd.DataFrame()
-share_df_com["share_com"] = df_com["Company"] / df_all['Total']
+share_df_com["share_com"] = df_com["Company"] / df_com['Total']
 
 share_df_com.to_csv("Data/comp_participation.csv", index=False)
 

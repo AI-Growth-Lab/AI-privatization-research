@@ -1,14 +1,14 @@
 import tqdm
+import pickle
+import pymongo
 import pandas as pd 
 import plotly.express as px
 from plotly.offline import plot
-import pymongo
-
 
 Client = pymongo.MongoClient("mongodb://localhost:27017")
 db = Client["openAlex"]
 collection_ai_authors = db["author_profile_ai"]
-
+collection_ai_papers = db["works_ai_2_False"]
 
 df_variables = pd.read_csv("Data/variables.csv")
 df_variables = df_variables[df_variables["year"]>=2000]
@@ -20,6 +20,18 @@ df_works = pd.read_csv("Data/variables.csv")
 authors_1_aff = list(set(df_variables[pd.notna(df_variables["aff_type"])]["AID"]))
 n_authors_1_aff = len(set(df_variables[pd.notna(df_variables["aff_type"])]["AID"]))
 
+
+# 3 years
+
+authors_3_aff = []
+
+docs = collection_ai_authors.find()
+for doc in tqdm.tqdm(docs):
+    if len(doc) >= 6:
+        authors_3_aff.append(doc["AID_cleaned"])
+
+with open('Data/list_aid_ai_cons3.pickle', 'rb') as f:
+    list_aid_ai_cons3 = pickle.load(f)   
 
 # 3 consecutive years
 
@@ -33,6 +45,41 @@ for year in range(2000,2022):
         authors_3_cons_aff.append(doc["AID_cleaned"])
 
 authors_3_cons_aff = list(set(authors_3_cons_aff))
+
+
+# Conference
+
+docs = collection_ai_papers.find()
+
+types = []
+for doc in tqdm.tqdm(docs):
+    if doc["host_venue"]["type"] == "publisher":
+        types.append(doc["host_venue"]["display_name"])
+
+types = list(set(types))
+
+types = [type_ for type_ in types if type_ != None]
+types = [type_ for type_ in types if "conference" in type_.lower()]
+
+# Affiliation
+
+docs = collection_ai_papers.find()
+
+unique_inst = []
+for doc in tqdm.tqdm(docs):
+    for author in doc["authorships"]:
+        for inst in author["institutions"]:
+            try:
+                if inst["type"]:
+                    unique_inst.append(inst["id"])
+            except Exception as e :
+                continue
+
+docs = collection_ai_papers.find()
+for doc in tqdm.tqdm(docs):
+    if doc["host_venue"]["type"] == "publisher":
+        types.append(doc["host_venue"]["display_name"])
+
 
 # Create list of authors
 list_edu = list(df_static[df_static['AID'].isin(authors_3_cons_aff)][df_static[df_static['AID'].isin(authors_3_cons_aff)]["type"] == "education"]["AID"])
