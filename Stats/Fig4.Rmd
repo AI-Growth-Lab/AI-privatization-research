@@ -48,15 +48,16 @@ oma2 <- c(0.3,0,0,0.3)
 
 figa = ggplot(counts, aes(x = dropout)) + 
   geom_line(size=1.25,aes(y = share_leaving), color= "#1f77b4") +
-  ggtitle("Share of researchers leaving on researchers left") +
+  ggtitle("") +
   labs(x = "Year",
-         y = "(%)") +
+         y = "Share") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 6),
       axis.text.y = element_text(size = 6),
       axis.title.x = element_text(size = 6),
       axis.title.y = element_text(size = 6),
       panel.border = element_rect(colour = "black", fill=NA, size=0.75),
       plot.margin = unit(oma2, "cm"),
+      plot.title = element_text(size = 6),
       panel.grid.major = element_blank(),
       panel.grid.minor = element_blank(),
       panel.background = element_blank()) 
@@ -64,7 +65,7 @@ figa
 ```
 
 ```{r}
-pdf(file="../Data/Fig2.pdf", width=8, height=5, family="Helvetica", pointsize=6)
+pdf(file="../Data/Fig4.pdf", width=8, height=5, family="Helvetica", pointsize=6)
 figa
 dev.off()
 ```

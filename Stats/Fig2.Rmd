@@ -1,0 +1,332 @@
+---
+title: 'Fig2'
+author: "Kevin Wirtz (kevin.wirtz@unistra.fr)"
+date: "Updated `r format(Sys.time(), '%B %d, %Y')`"
+output:
+  html_notebook:
+    code_folding: hide
+    df_print: paged
+    toc: true
+    toc_depth: 2
+    toc_float:
+      collapsed: false
+    theme: flatly
+---
+
+```{r setup, include=FALSE}
+# Knitr options
+### Generic preamble
+rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
+gc() #free up memrory and report the memory usage.
+graphics.off()
+
+Sys.setenv(LANG = "en") # For english language
+options(scipen = 5) # To deactivate annoying scientific number notation
+
+### Load packages
+library(tidyverse) # Collection of all the good stuff like dplyr, ggplot2 ect.
+library(magrittr) # For extra-piping operators (eg. %<>%)
+
+# Descriptives
+#library(skimr)
+library(stargazer)
+# Viz
+library(patchwork)
+
+# Survival analysis
+library(survival)
+library(survminer)
+library(ggfortify)
+
+# Plots
+library(cowplot)
+library(ggpubr)
+library(magick)
+
+```
+
+# Load data
+
+```{r}
+data <- read_rds('../Data/data_reg.rds')
+```
+
+
+# Regression data prep
+
+## Sorting etc
+
+```{r}
+# Just to be sure
+data %<>%
+  distinct(AID, year, .keep_all = TRUE) %>%
+  relocate(AID, year, type, transition, transited_t, seniority) 
+```
+
+## Lagged variables
+
+```{r}
+# Decide what to lag
+data %<>%
+  arrange(AID, year) %>%
+  group_by(AID) %>%
+  mutate(
+    across(c(concepts,
+             DL,
+             paper_n, 
+             citation_n, 
+             author_mean,
+             oa_mean, 
+             novelty_mean, 
+             deg_cen, 
+             deg_cen_comp, 
+             novelty_fw, 
+             citation_fw,
+             aff_citation_fw,
+             aff_novelty_fw,
+             DI1_fw,
+             DI5_fw,
+             DI5nok_fw,
+             DeIn_fw,
+             Breadth_fw,
+             Depth_fw,
+             DI1_mean,
+             DI5_mean,
+             DI5nok_mean,
+             DeIn_mean,
+             Breadth_mean,
+             Depth_mean,             
+             ), ~ lag(.x, 1))
+  ) %>%
+  ungroup()
+```
+
+```{r}
+# Some last preprocessing
+data %<>%
+  filter(year >= 2000,
+         year <= 2021) %>%
+  mutate(co_author_industry = deg_cen_comp > 0) %>% #,year_min = ifelse(year_min < 2000, 2000, year_min))
+    group_by(AID) %>%
+  mutate(t = 1:n(),
+         t_max = n()) %>%
+  ungroup()
+```
+
+```{r}
+# Check missing data
+data  %>% naniar::gg_miss_var()
+```
+
+```{r}
+# Replace NA. All others are by construction
+data %<>%
+  replace_na(list(DL = 0, concepts = 'unknown'))
+```
+
+
+# Survival analysis
+
+```{r}
+data_surv <- data %>% 
+  # Filter for last observation (=right cernsoring or transition)
+  filter(is.na(transited_t) | transited_t <= 1) %>%
+  group_by(AID) %>%
+  slice_max(order_by = t, n= 1, with_ties = FALSE) %>%
+  ungroup() %>%
+  # Add some variables
+  mutate(auth_star = citation_fw >= 0.9,
+         aff_star = aff_citation_fw >= 0.9,
+         )
+
+
+# Previous filtering approach:
+# filter(  (type == 'education' & year == year_max) | (type == 'switcher' & transition == 1)) %>%
+```
+
+```{r}
+data_surv %>% count(type)
+```
+
+```{r}
+# Surf object
+surv_object <- Surv(time = data_surv$t, event = data_surv$transition)
+```
+
+```{r}
+table(surv_object)
+```
+
+## Kaplan-Meier Method and Log Rank Test
+
+```{r}
+data_surv$DL_new <- factor(data_surv$DL, levels = c(0, 1), labels = c("Others", "Deep learning Researchers"))
+data_surv$auth_star_new <- factor(data_surv$auth_star, levels = c(FALSE, TRUE), labels = c("Others", "Star Researchers"))
+
+fit_km0 <- survfit(surv_object ~ 1, 
+                   data = data_surv)
+fit_km1 <- survfit(surv_object ~ DL_new, 
+                   data = data_surv)
+fit_km2 <- survfit(surv_object ~ auth_star_new, 
+                   data = data_surv)
+fit_km3 <- survfit(surv_object ~ aff_star,
+                   data = data_surv)
+```
+
+```{r}
+p1 <- fit_km0 %>% autoplot() + labs(title= 'KM: baseline')
+p2 <- fit_km1 %>% autoplot() + labs(title= 'KM: DL researcher')
+p3 <- fit_km2 %>% autoplot() + labs(title= 'KM: Star researcher')
+p4 <- fit_km3 %>% autoplot() + labs(title= 'KM: Star institution')
+
+(p1 + p2) / (p3 + p4) +  plot_layout(guides = "collect") & theme(legend.position = 'bottom') & labs(x = 'Time', y = 'Survival Probability')
+```
+
+```{r}
+
+oma2 <- c(0.3,0,0,0.3)
+fig_a <- fit_km1 %>% autoplot() +
+          labs(x = "Survival Time (Years)",
+         y = "Survival Probabilities") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 6),
+      axis.text.y = element_text(size = 6),
+      axis.title.x = element_text(size = 6),
+      axis.title.y = element_text(size = 6),
+      panel.border = element_rect(colour = "black", fill=NA, size=0.75),
+      plot.margin = unit(oma2, "cm"),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      panel.background = element_blank(),
+      legend.key=element_blank(),
+      legend.title=element_blank(),
+      legend.position="top",
+      legend.text=element_text(size = 6)) 
+fig_a
+```
+```{r}
+
+oma2 <- c(0.3,0,0,0.3)
+fig_b <- fit_km2 %>% autoplot() +
+          labs(x = "Survival Time (Years)",
+         y = "Survival Probabilities") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 6),
+      axis.text.y = element_text(size = 6),
+      axis.title.x = element_text(size = 6),
+      axis.title.y = element_text(size = 6),
+      panel.border = element_rect(colour = "black", fill=NA, size=0.75),
+      plot.margin = unit(oma2, "cm"),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      panel.background = element_blank(),
+      legend.key=element_blank(),
+      legend.title=element_blank(),
+      legend.position="top",
+      legend.text=element_text(size = 6)) 
+fig_b
+```
+
+
+```{r}
+### Fit Cox proportional hazard model
+set.seed(1337)
+
+#Baseline
+fit_cox0 <- coxph(surv_object ~ seniority + concepts + year,
+                  data = data_surv)
+
+fit_cox1 <- coxph(surv_object ~ seniority + concepts + year 
+                  + DL,
+                  data = data_surv)
+
+fit_cox2 <- coxph(surv_object ~ seniority + concepts + year 
+                  + deg_cen + deg_cen_comp,
+                  data = data_surv)
+
+fit_cox3 <- coxph(surv_object ~ seniority + concepts + year 
+                  + citation_fw + novelty_fw,
+                  data = data_surv)
+
+fit_cox4 <- coxph(surv_object ~ seniority + concepts + year 
+                  + aff_citation_fw,
+                  data = data_surv)
+
+fit_cox5 <- coxph(surv_object ~ seniority + concepts + year 
+                  + DL + deg_cen + deg_cen_comp + citation_fw + novelty_fw + aff_citation_fw,
+                  data = data_surv)
+```
+```{r, results='asis'}
+
+stargazer(fit_cox0, fit_cox1, fit_cox2, fit_cox3, fit_cox4, fit_cox5, type = 'text', omit = c( 'concepts', 'year', 'Constant'), font.size='tiny')
+
+```
+
+```{r}
+hr_data <- data.frame(
+  Variable = names(coef(fit_cox5)),
+  HazardRatio = exp(coef(fit_cox5)),
+  LowerCI = exp(confint(fit_cox5))[, 1],
+  UpperCI = exp(confint(fit_cox5))[, 2]
+)
+
+
+# Step 2: Create a data frame for the forest plot
+hr_data <- hr_data[!grepl("^concepts", hr_data$Variable), ]
+
+forest_data <- data.frame(
+  Variable = hr_data$Variable,
+  HazardRatio = hr_data$HazardRatio,
+  LowerCI = hr_data$LowerCI,
+  UpperCI = hr_data$UpperCI
+)
+
+# Step 3: Sort the data frame by descending hazard ratios
+forest_data <- forest_data[order(forest_data$HazardRatio, decreasing = TRUE), ]
+
+# Step 4: Create the forest plot using ggplot
+fig_c <- ggplot(data = forest_data, aes(x = HazardRatio, y = Variable)) +
+  geom_vline(xintercept = 1, linetype = "dashed", color = "gray") +
+  geom_point(size = 3) +
+  geom_errorbarh(aes(xmin = LowerCI, xmax = UpperCI), height = 0.2) +
+  labs(x = "Hazard Ratio", y = "") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 6),
+      axis.text.y = element_text(size = 6),
+      axis.title.x = element_text(size = 6),
+      axis.title.y = element_text(size = 6),
+      panel.border = element_rect(colour = "black", fill=NA, size=0.75),
+      plot.margin = unit(oma2, "cm"),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      panel.background = element_blank(),
+      legend.key=element_blank(),
+      legend.title=element_blank(),
+      legend.position="top",
+      legend.text=element_text(size = 6)) 
+
+# Display the forest plot
+fig_c
+```
+
+# Fig1: Assemble ####
+```{r} 
+
+
+fig2 = ggdraw() +
+  draw_plot(fig_a, x=0, y=0.9/2, width=1/2, height=1.75/3)+
+  draw_plot(fig_b, x=1/2, y=0.9/2, width=1/2, height=1.75/3)+
+  draw_plot(fig_c, x=0.6/3, y=-0.4/2, width=1/2, height=1.75/3)+
+  draw_plot_label(label=c("A","B", "C"),x=c(0, 0.5, 0.275),y=c(0.99, 0.99, 0.425), 
+                  size = 10) +
+theme(plot.margin = margin(0.1,0.1,2,0.1, "cm")) 
+
+fig1
+
+```
+
+
+```{r}
+pdf(file="../Data/Fig2.pdf", width=8, height=5, family="Helvetica", pointsize=6)
+fig2
+dev.off()
+```
+
+
